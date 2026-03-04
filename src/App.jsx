@@ -4,6 +4,18 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 /* ══════════════════════════════════════════════════════
+   DEVICE DETECTION UTILITY
+══════════════════════════════════════════════════════ */
+function getDeviceTier() {
+  const w = window.innerWidth;
+  if (w < 768) return "mobile";
+  if (w < 1280) return "tablet";
+  return "desktop";
+}
+function isMobileDevice() { return getDeviceTier() === "mobile"; }
+function isTabletDevice() { return getDeviceTier() === "tablet"; }
+
+/* ══════════════════════════════════════════════════════
    LIQUID ETHER ENGINE
 ══════════════════════════════════════════════════════ */
 function LiquidEther({
@@ -119,10 +131,13 @@ function LiquidEther({
         this.width = Math.max(1, Math.floor(window.innerWidth));
         this.height = Math.max(1, Math.floor(window.innerHeight));
         this.aspect = this.width / this.height;
-        const isMobile = window.innerWidth < 768;
-        this.pixelRatio = isMobile
-          ? Math.min(window.devicePixelRatio || 1, 1.5)
-          : Math.min(window.devicePixelRatio || 1, 2);
+        const tier = getDeviceTier();
+        this.pixelRatio =
+          tier === "mobile"
+            ? Math.min(window.devicePixelRatio || 1, 1.0)
+            : tier === "tablet"
+              ? Math.min(window.devicePixelRatio || 1, 1.5)
+              : Math.min(window.devicePixelRatio || 1, 2);
         if (this.renderer) {
           this.renderer.setPixelRatio(this.pixelRatio);
           this.renderer.setSize(this.width, this.height, false);
@@ -710,6 +725,8 @@ function LiquidEther({
           resolution,
           isViscous,
           viscous,
+          iterations_viscous: iterationsViscous,
+          iterations_poisson: iterationsPoisson,
           dt,
           BFECC,
           isBounce,
@@ -917,14 +934,29 @@ function GlassCube() {
     if (!container) return;
     let mounted = true;
 
+    const tier = getDeviceTier();
+    const isMobile = tier === "mobile";
+    const isTablet = tier === "tablet";
+    const isLowEnd = isMobile || isTablet;
+
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer = new THREE.WebGLRenderer({
+        antialias: !isMobile,
+        alpha: true,
+        powerPreference: isLowEnd ? "low-power" : "high-performance",
+      });
     } catch (e) {
       if (window.handleWebGLFallback) window.handleWebGLFallback();
       return;
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const dpr = isMobile
+      ? Math.min(window.devicePixelRatio, 1.0)
+      : isTablet
+        ? Math.min(window.devicePixelRatio, 1.5)
+        : Math.min(window.devicePixelRatio, 2);
+    renderer.setPixelRatio(dpr);
     renderer.setSize(container.offsetWidth, container.offsetHeight, false);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
@@ -946,16 +978,8 @@ function GlassCube() {
     const onContextCreationError = () => {
       if (mounted && window.handleWebGLFallback) window.handleWebGLFallback();
     };
-    renderer.domElement.addEventListener(
-      "webglcontextlost",
-      onContextLost,
-      false,
-    );
-    renderer.domElement.addEventListener(
-      "webglcontextcreationerror",
-      onContextCreationError,
-      false,
-    );
+    renderer.domElement.addEventListener("webglcontextlost", onContextLost, false);
+    renderer.domElement.addEventListener("webglcontextcreationerror", onContextCreationError, false);
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
@@ -965,9 +989,10 @@ function GlassCube() {
     const pmrem = new THREE.PMREMGenerator(renderer);
     pmrem.compileEquirectangularShader();
 
+    // Synthetic env map (always generated)
     {
-      const W = 256,
-        H = 128;
+      const W = isMobile ? 64 : 256,
+        H = isMobile ? 32 : 128;
       const f = new Float32Array(W * H * 4);
       const SPOTS = [
         [0.22, 0.12, 14, 12, 10, 0.06],
@@ -980,105 +1005,110 @@ function GlassCube() {
       for (let y = 0; y < H; y++) {
         for (let x = 0; x < W; x++) {
           const i = (y * W + x) * 4;
-          const u = x / W,
-            v = y / H;
+          const u = x / W, v = y / H;
           const sky = 1 - v * 0.55;
-          let r = sky * 0.65,
-            g = sky * 0.55,
-            b = sky * 0.95;
+          let r = sky * 0.65, g = sky * 0.55, b = sky * 0.95;
           for (const [su, sv, sr, sg, sb, rad] of SPOTS) {
             const d = Math.sqrt((u - su) ** 2 + (v - sv) ** 2);
             const k = Math.max(0, 1 - d / rad) ** 3;
-            r += sr * k;
-            g += sg * k;
-            b += sb * k;
+            r += sr * k; g += sg * k; b += sb * k;
           }
-          f[i] = r;
-          f[i + 1] = g;
-          f[i + 2] = b;
-          f[i + 3] = 1;
+          f[i] = r; f[i + 1] = g; f[i + 2] = b; f[i + 3] = 1;
         }
       }
-      const synth = new THREE.DataTexture(
-        f,
-        W,
-        H,
-        THREE.RGBAFormat,
-        THREE.FloatType,
-      );
+      const synth = new THREE.DataTexture(f, W, H, THREE.RGBAFormat, THREE.FloatType);
       synth.mapping = THREE.EquirectangularReflectionMapping;
       synth.colorSpace = THREE.LinearSRGBColorSpace;
       synth.needsUpdate = true;
       scene.environment = pmrem.fromEquirectangular(synth).texture;
       synth.dispose();
+      if (isLowEnd) pmrem.dispose(); // skip HDR on mobile/tablet
     }
 
-    new RGBELoader()
-      .loadAsync(
-        "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr",
-      )
-      .then((hdrTex) => {
-        if (!mounted) {
+    // Only load heavy HDR on desktop
+    if (!isLowEnd) {
+      new RGBELoader()
+        .loadAsync(
+          "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr",
+        )
+        .then((hdrTex) => {
+          if (!mounted) { hdrTex.dispose(); pmrem.dispose(); return; }
+          hdrTex.mapping = THREE.EquirectangularReflectionMapping;
+          const next = pmrem.fromEquirectangular(hdrTex).texture;
+          const prev = scene.environment;
+          scene.environment = next;
+          prev?.dispose();
           hdrTex.dispose();
           pmrem.dispose();
-          return;
-        }
-        hdrTex.mapping = THREE.EquirectangularReflectionMapping;
-        const next = pmrem.fromEquirectangular(hdrTex).texture;
-        const prev = scene.environment;
-        scene.environment = next;
-        prev?.dispose();
-        hdrTex.dispose();
-        pmrem.dispose();
-      })
-      .catch(() => {
-        if (mounted) pmrem.dispose();
-      });
+        })
+        .catch(() => { if (mounted) pmrem.dispose(); });
+    }
 
-    const cubeGeo = new RoundedBoxGeometry(2, 2, 2, 8, 0.22);
-    const cubeMat = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      transmission: 1,
-      thickness: 2,
-      roughness: 0.05,
-      metalness: 0.1,
-      ior: 1.5,
-      iridescence: 1,
-      iridescenceIOR: 1.3,
-      iridescenceThicknessRange: [100, 700],
-      clearcoat: 1,
-      clearcoatRoughness: 0,
-      envMapIntensity: 2,
-      transparent: true,
-      opacity: 0.65,
-    });
+    const cubeGeo = new RoundedBoxGeometry(2, 2, 2, isMobile ? 4 : 8, 0.22);
+    // Use cheaper material on mobile to avoid transmission overhead
+    const cubeMat = isLowEnd
+      ? new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.1,
+        metalness: 0.3,
+        envMapIntensity: 1.5,
+        transparent: true,
+        opacity: 0.75,
+      })
+      : new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transmission: 1,
+        thickness: 2,
+        roughness: 0.05,
+        metalness: 0.1,
+        ior: 1.5,
+        iridescence: 1,
+        iridescenceIOR: 1.3,
+        iridescenceThicknessRange: [100, 700],
+        clearcoat: 1,
+        clearcoatRoughness: 0,
+        envMapIntensity: 2,
+        transparent: true,
+        opacity: 0.65,
+      });
     const cube = new THREE.Mesh(cubeGeo, cubeMat);
     cube.scale.set(1.1, 1.1, 1.1);
     scene.add(cube);
 
-    const innerGeo = new THREE.OctahedronGeometry(0.52, 2);
-    const innerMat = new THREE.MeshPhysicalMaterial({
-      color: 0xddc8ff,
-      transmission: 0.9,
-      thickness: 1,
-      roughness: 0.06,
-      metalness: 0.0,
-      ior: 1.8,
-      iridescence: 1,
-      iridescenceIOR: 1.6,
-      iridescenceThicknessRange: [200, 900],
-      clearcoat: 0.8,
-      clearcoatRoughness: 0,
-      envMapIntensity: 2.5,
-      transparent: true,
-      opacity: 0.6,
-    });
+    const innerGeo = new THREE.OctahedronGeometry(0.52, isMobile ? 1 : 2);
+    const innerMat = isLowEnd
+      ? new THREE.MeshStandardMaterial({
+        color: 0xddc8ff,
+        roughness: 0.1,
+        metalness: 0.2,
+        envMapIntensity: 1.8,
+        transparent: true,
+        opacity: 0.7,
+      })
+      : new THREE.MeshPhysicalMaterial({
+        color: 0xddc8ff,
+        transmission: 0.9,
+        thickness: 1,
+        roughness: 0.06,
+        metalness: 0.0,
+        ior: 1.8,
+        iridescence: 1,
+        iridescenceIOR: 1.6,
+        iridescenceThicknessRange: [200, 900],
+        clearcoat: 0.8,
+        clearcoatRoughness: 0,
+        envMapIntensity: 2.5,
+        transparent: true,
+        opacity: 0.6,
+      });
     const inner = new THREE.Mesh(innerGeo, innerMat);
     inner.scale.set(1.1, 1.1, 1.1);
     scene.add(inner);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const LIGHT_DEFS = [
+    scene.add(new THREE.AmbientLight(0xffffff, isLowEnd ? 0.8 : 0.4));
+
+    // Fewer lights on mobile/tablet
+    const LIGHT_DEFS_ALL = [
       { color: 0xff2244, intensity: 25 },
       { color: 0xff8800, intensity: 18 },
       { color: 0x00ddff, intensity: 22 },
@@ -1086,8 +1116,9 @@ function GlassCube() {
       { color: 0xff00bb, intensity: 16 },
       { color: 0x00ff99, intensity: 14 },
     ];
+    const LIGHT_DEFS = isLowEnd ? LIGHT_DEFS_ALL.slice(0, 3) : LIGHT_DEFS_ALL;
     const lights = LIGHT_DEFS.map(({ color, intensity }) => {
-      const l = new THREE.PointLight(color, intensity, 14);
+      const l = new THREE.PointLight(color, isLowEnd ? intensity * 0.8 : intensity, 14);
       scene.add(l);
       return l;
     });
@@ -1108,21 +1139,19 @@ function GlassCube() {
       BLEND_IN = 0.012,
       BLEND_OUT = 0.05;
 
-    const onMove = (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      isInWindow = true;
-    };
-    const onLeave = () => {
-      isInWindow = false;
-    };
+    const onMove = (e) => { mouseX = e.clientX; mouseY = e.clientY; isInWindow = true; };
+    const onLeave = () => { isInWindow = false; };
     window.addEventListener("mousemove", onMove);
     document.addEventListener("mouseleave", onLeave);
 
-    let t = 0,
-      rafId;
+    let t = 0, rafId;
+    // On mobile, update lights less often to save GPU work
+    let frameCount = 0;
+    const LIGHT_UPDATE_INTERVAL = isMobile ? 2 : 1;
+
     const animate = () => {
       rafId = requestAnimationFrame(animate);
+      frameCount++;
       t += 0.011;
       const dX = mouseX - prevMouseX,
         dY = mouseY - prevMouseY;
@@ -1143,36 +1172,18 @@ function GlassCube() {
       inner.rotation.y = rotY * 0.7;
       inner.rotation.x = -rotX * 0.65;
       inner.rotation.z = t * 0.22;
-      lights[0].position.set(
-        Math.cos(t * 0.7) * 4.5,
-        Math.sin(t * 0.42) * 3.0,
-        3.5,
-      );
-      lights[1].position.set(
-        -3.5,
-        Math.cos(t * 0.55) * 4.2,
-        Math.sin(t * 0.38) * 3.0,
-      );
-      lights[2].position.set(
-        Math.sin(t * 0.62) * 4.5,
-        -2.0,
-        Math.cos(t * 0.78) * 4.5,
-      );
-      lights[3].position.set(
-        Math.cos(t * 0.42 + 2.0) * 4.0,
-        Math.sin(t * 0.9) * 4.5,
-        2.5,
-      );
-      lights[4].position.set(
-        -2.5,
-        Math.sin(t * 0.73 + 1.2) * 3.5,
-        Math.cos(t * 0.48 + 1.0) * -4.0,
-      );
-      lights[5].position.set(
-        Math.sin(t * 0.3) * 3.5,
-        -2.5,
-        Math.cos(t * 0.6 + 2.1) * -3.5,
-      );
+
+      // Update light positions every N frames on mobile
+      if (frameCount % LIGHT_UPDATE_INTERVAL === 0) {
+        lights[0].position.set(Math.cos(t * 0.7) * 4.5, Math.sin(t * 0.42) * 3.0, 3.5);
+        lights[1].position.set(-3.5, Math.cos(t * 0.55) * 4.2, Math.sin(t * 0.38) * 3.0);
+        lights[2].position.set(Math.sin(t * 0.62) * 4.5, -2.0, Math.cos(t * 0.78) * 4.5);
+        if (!isLowEnd) {
+          lights[3].position.set(Math.cos(t * 0.42 + 2.0) * 4.0, Math.sin(t * 0.9) * 4.5, 2.5);
+          lights[4].position.set(-2.5, Math.sin(t * 0.73 + 1.2) * 3.5, Math.cos(t * 0.48 + 1.0) * -4.0);
+          lights[5].position.set(Math.sin(t * 0.3) * 3.5, -2.5, Math.cos(t * 0.6 + 2.1) * -3.5);
+        }
+      }
       renderer.render(scene, camera);
     };
     animate();
@@ -1180,12 +1191,14 @@ function GlassCube() {
     const handleResize = () => {
       if (!mounted) return;
       const screenW = window.innerWidth;
-      const isMobile = screenW < 768;
-      const isTablet = screenW >= 768 && screenW < 1280;
+      const mob = screenW < 768;
+      const tab = screenW >= 768 && screenW < 1280;
       renderer.setPixelRatio(
-        isMobile
-          ? Math.min(window.devicePixelRatio, 1.5)
-          : Math.min(window.devicePixelRatio, 2),
+        mob
+          ? Math.min(window.devicePixelRatio, 1.0)
+          : tab
+            ? Math.min(window.devicePixelRatio, 1.5)
+            : Math.min(window.devicePixelRatio, 2),
       );
       renderer.setSize(616, 616, false);
       if (camera.aspect !== 1) {
@@ -1193,8 +1206,8 @@ function GlassCube() {
         camera.updateProjectionMatrix();
       }
       let scale = 0.8;
-      if (isMobile) scale = 0.4;
-      else if (isTablet) scale = 0.6;
+      if (mob) scale = 0.4;
+      else if (tab) scale = 0.6;
       container.style.transform = `translate(-50%, -50%) scale(${scale})`;
       cube.scale.set(1.1, 1.1, 1.1);
       inner.scale.set(1.1, 1.1, 1.1);
@@ -1208,21 +1221,12 @@ function GlassCube() {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseleave", onLeave);
-      lights.forEach((l) => {
-        scene.remove(l);
-        l.dispose();
-      });
+      lights.forEach((l) => { scene.remove(l); l.dispose(); });
       [cubeGeo, cubeMat, innerGeo, innerMat].forEach((o) => o.dispose());
       if (scene.environment) scene.environment.dispose();
       renderer.dispose();
-      renderer.domElement.removeEventListener(
-        "webglcontextlost",
-        onContextLost,
-      );
-      renderer.domElement.removeEventListener(
-        "webglcontextcreationerror",
-        onContextCreationError,
-      );
+      renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
+      renderer.domElement.removeEventListener("webglcontextcreationerror", onContextCreationError);
       renderer.domElement.remove();
     };
   }, []);
@@ -1249,6 +1253,16 @@ function GlassCube() {
 ══════════════════════════════════════════════════════ */
 export default function App() {
   const [webglFallback, setWebglFallback] = useState(false);
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 1280;
+  });
+
+  useEffect(() => {
+    const handleResize = () => setIsMobileOrTablet(window.innerWidth < 1280);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const canvas = document.createElement("canvas");
@@ -1297,15 +1311,17 @@ export default function App() {
         >
           <LiquidEther
             colors={["#a855f7", "#ec4899", "#f9a8d4"]}
-            mouseForce={22}
-            cursorSize={150}
+            mouseForce={isMobileOrTablet ? 15 : 22}
+            cursorSize={isMobileOrTablet ? 80 : 150}
             autoDemo={true}
-            autoSpeed={0.42}
-            autoIntensity={2.5}
+            autoSpeed={isMobileOrTablet ? 0.3 : 0.42}
+            autoIntensity={isMobileOrTablet ? 1.5 : 2.5}
             autoRampDuration={1.1}
             autoResumeDelay={1000}
-            resolution={0.55}
-            BFECC={true}
+            resolution={isMobileOrTablet ? 0.25 : 0.55}
+            iterationsPoisson={isMobileOrTablet ? 12 : 32}
+            iterationsViscous={isMobileOrTablet ? 12 : 32}
+            BFECC={!isMobileOrTablet}
             style={{ width: "100%", height: "100%" }}
           />
         </div>

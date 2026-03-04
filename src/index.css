@@ -72,3 +72,33 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* ── Mobile / Touch Optimizations ── */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  touch-action: manipulation;
+  /* Safe-area support for notched devices */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Prevent canvas elements from triggering scroll on touch */
+canvas {
+  touch-action: none;
+  /* GPU compositing hint */
+  will-change: transform;
+  /* Prevent iOS callout on long press */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  canvas {
+    animation: none !important;
+  }
+}
