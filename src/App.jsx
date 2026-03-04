@@ -361,7 +361,7 @@ function GlassCube() {
       ref={mountRef}
       style={{
         position: 'absolute',
-        top: '40%', left: '50%', // <-- 빨간색 박스 기준 높이(이전 레이아웃)로 복구
+        top: '27%', left: '50%', // 빨간색 박스 중심 높이에 맞춤 (1920x1080 기준 스크린샷 분석)
         transform: 'translate(-50%, -50%)',
         zIndex: 1,
         pointerEvents: 'none',
