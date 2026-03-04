@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import Header from "./components/Header.jsx";
 
 /* ══════════════════════════════════════════════════════
    DEVICE DETECTION UTILITY
@@ -1290,6 +1291,7 @@ export default function App() {
         background: "#ffffff",
       }}
     >
+      <Header />
       {/* WebGL layer */}
       <div
         style={{
