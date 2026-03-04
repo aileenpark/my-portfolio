@@ -362,7 +362,7 @@ function GlassCube() {
       ref={mountRef}
       style={{
         position: 'absolute',
-        top: '20%', left: '50%', // 빨간색 박스 상단 높이에 맞춤 (scale 0.8 기준, 헤더 공간 확보)
+        top: '40%', left: '50%', // scale 0.8 기준, 1920x1080에서 큐브 상단 Y≈182px 위치
         transform: 'translate(-50%, -50%)',
         zIndex: 1,
         pointerEvents: 'none',
