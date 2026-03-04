@@ -308,40 +308,44 @@ function GlassCube() {
     };
     animate();
 
-    /* ── Resize ──────────────────────────────────────── */
-    const ro = new ResizeObserver(() => {
+    /* ── Resize (Desktop 고정 크기 유지 & 반응형 Scale) ─── */
+    const handleResize = () => {
       if (!mounted) return;
-      const w = container.offsetWidth;
-      const h = container.offsetHeight;
       const screenW = window.innerWidth;
       const isMobile = screenW < 768;
       const isTablet = screenW >= 768 && screenW < 1280;
 
-      // 1. 픽셀 비율 및 크기 반응형 (모바일 성능 최적화)
+      // 1. 모바일 성능 최적화: Pixel Ratio 조정
       renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(w, h);
 
-      // 2. 카메라 aspect 비율 업데이트 (캔버스가 항상 viewport에 맞도록)
-      if (h > 0) {
-        camera.aspect = w / h;
+      // 2. 렌더링 캔버스 크기는 데스크탑 기준 (616x616)으로 완전 고정하여
+      // 이전과 완벽하게 동일한 픽셀 크기와 위치(top: 40%)를 보장
+      renderer.setSize(616, 616);
+      if (camera.aspect !== 1) {
+        camera.aspect = 1;
         camera.updateProjectionMatrix();
       }
 
-      // 3. 브레이크포인트 기준 큐브 사이즈 반응형 (Desktop: 1, Tablet: 0.75, Mobile: 0.5)
+      // 3. 브레이크포인트에 따른 CSS Scale 조정
       let scale = 1;
       if (isMobile) scale = 0.5;
       else if (isTablet) scale = 0.75;
 
-      cube.scale.set(1.1 * scale, 1.1 * scale, 1.1 * scale);
-      inner.scale.set(1.1 * scale, 1.1 * scale, 1.1 * scale);
-    });
-    ro.observe(container);
+      container.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+      // 물리적 큐브 크기는 원래 비율 그대로 1.1 고정
+      cube.scale.set(1.1, 1.1, 1.1);
+      inner.scale.set(1.1, 1.1, 1.1);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // 즉시 1회 실행
 
     /* ── Cleanup ─────────────────────────────────────── */
     return () => {
       mounted = false;
       cancelAnimationFrame(rafId);
-      ro.disconnect();
+      window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseleave', onLeave);
       lights.forEach(l => { scene.remove(l); l.dispose(); });
@@ -357,10 +361,11 @@ function GlassCube() {
       ref={mountRef}
       style={{
         position: 'absolute',
-        inset: 0,
+        top: '40%', left: '50%', // <-- 빨간색 박스 기준 높이(이전 레이아웃)로 복구
+        transform: 'translate(-50%, -50%)',
         zIndex: 1,
         pointerEvents: 'none',
-        width: '100%', height: '100%',
+        width: 616, height: 616, // 데스크탑에서 원래 렌더링되던 최적의 픽셀 해상도
       }}
     />
   );
