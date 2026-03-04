@@ -40,8 +40,8 @@ function LiquidEther({
     const bgVec4 = new THREE.Vector4(0, 0, 0, 0);
     class CommonClass {
       width = 0; height = 0; aspect = 1; pixelRatio = 1; time = 0; delta = 0; container = null; renderer = null; clock = null;
-      init(container) { this.container = container; this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2); this.resize(); this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); this.renderer.autoClear = false; this.renderer.setClearColor(new THREE.Color(0x000000), 0); this.renderer.setPixelRatio(this.pixelRatio); this.renderer.setSize(this.width, this.height); const el = this.renderer.domElement; el.style.width = '100%'; el.style.height = '100%'; el.style.display = 'block'; this.clock = new THREE.Clock(); this.clock.start(); }
-      resize() { if (!this.container) return; const rect = this.container.getBoundingClientRect(); this.width = Math.max(1, Math.floor(rect.width)); this.height = Math.max(1, Math.floor(rect.height)); this.aspect = this.width / this.height; if (this.renderer) this.renderer.setSize(this.width, this.height, false); }
+      init(container) { this.container = container; this.resize(); this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); this.renderer.autoClear = false; this.renderer.setClearColor(new THREE.Color(0x000000), 0); this.renderer.setPixelRatio(this.pixelRatio); this.renderer.setSize(this.width, this.height); const el = this.renderer.domElement; el.style.width = '100%'; el.style.height = '100%'; el.style.display = 'block'; this.clock = new THREE.Clock(); this.clock.start(); }
+      resize() { if (!this.container) return; const rect = this.container.getBoundingClientRect(); this.width = Math.max(1, Math.floor(rect.width)); this.height = Math.max(1, Math.floor(rect.height)); this.aspect = this.width / this.height; const isMobile = window.innerWidth < 768; this.pixelRatio = isMobile ? Math.min(window.devicePixelRatio || 1, 1.5) : Math.min(window.devicePixelRatio || 1, 2); if (this.renderer) { this.renderer.setPixelRatio(this.pixelRatio); this.renderer.setSize(this.width, this.height, false); } }
       update() { if (!this.clock) return; this.delta = this.clock.getDelta(); this.time += this.delta; }
     }
     const Common = new CommonClass();
@@ -85,7 +85,7 @@ function LiquidEther({
     class Poisson extends ShaderPass { constructor(s) { super({ material: { vertexShader: fv, fragmentShader: pf, uniforms: { boundarySpace: { value: s.boundarySpace }, pressure: { value: s.dst_.texture }, divergence: { value: s.src.texture }, px: { value: s.cellScale } } }, output: s.dst, output0: s.dst_, output1: s.dst }); this.init(); } update(args) { const { iterations } = args; for (let i = 0; i < iterations; i++) { const pi = i % 2 === 0 ? this.props.output0 : this.props.output1, po = i % 2 === 0 ? this.props.output1 : this.props.output0; this.uniforms.pressure.value = pi.texture; this.props.output = po; super.update(); } return iterations % 2 === 0 ? this.props.output0 : this.props.output1; } }
     class Pressure extends ShaderPass { constructor(s) { super({ material: { vertexShader: fv, fragmentShader: rf, uniforms: { boundarySpace: { value: s.boundarySpace }, pressure: { value: s.src_p.texture }, velocity: { value: s.src_v.texture }, px: { value: s.cellScale }, dt: { value: s.dt } } }, output: s.dst }); this.init(); } update(args) { this.uniforms.velocity.value = args.vel.texture; this.uniforms.pressure.value = args.pressure.texture; super.update(); } }
     class Simulation { constructor(options) { this.options = { iterations_poisson: 32, iterations_viscous: 32, mouse_force: 20, resolution: 0.5, cursor_size: 100, viscous: 30, isBounce: false, dt: 0.014, isViscous: false, BFECC: true, ...options }; this.fbos = { vel_0: null, vel_1: null, vel_viscous0: null, vel_viscous1: null, div: null, pressure_0: null, pressure_1: null }; this.fboSize = new THREE.Vector2(); this.cellScale = new THREE.Vector2(); this.boundarySpace = new THREE.Vector2(); this.init(); } init() { this.calcSize(); this.createAllFBO(); this.createShaderPass(); } getFloatType() { return /(iPad|iPhone|iPod)/i.test(navigator.userAgent) ? THREE.HalfFloatType : THREE.FloatType; } createAllFBO() { const type = this.getFloatType(), opts = { type, depthBuffer: false, stencilBuffer: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, wrapS: THREE.ClampToEdgeWrapping, wrapT: THREE.ClampToEdgeWrapping }; for (const k in this.fbos) this.fbos[k] = new THREE.WebGLRenderTarget(this.fboSize.x, this.fboSize.y, opts); } createShaderPass() { this.advection = new Advection({ cellScale: this.cellScale, fboSize: this.fboSize, dt: this.options.dt, src: this.fbos.vel_0, dst: this.fbos.vel_1 }); this.externalForce = new ExternalForce({ cellScale: this.cellScale, cursor_size: this.options.cursor_size, dst: this.fbos.vel_1 }); this.viscous = new Viscous({ cellScale: this.cellScale, boundarySpace: this.boundarySpace, viscous: this.options.viscous, src: this.fbos.vel_1, dst: this.fbos.vel_viscous1, dst_: this.fbos.vel_viscous0, dt: this.options.dt }); this.divergence = new Divergence({ cellScale: this.cellScale, boundarySpace: this.boundarySpace, src: this.fbos.vel_viscous0, dst: this.fbos.div, dt: this.options.dt }); this.poisson = new Poisson({ cellScale: this.cellScale, boundarySpace: this.boundarySpace, src: this.fbos.div, dst: this.fbos.pressure_1, dst_: this.fbos.pressure_0 }); this.pressure = new Pressure({ cellScale: this.cellScale, boundarySpace: this.boundarySpace, src_p: this.fbos.pressure_0, src_v: this.fbos.vel_viscous0, dst: this.fbos.vel_0, dt: this.options.dt }); } calcSize() { const w = Math.max(1, Math.round(this.options.resolution * Common.width)), h = Math.max(1, Math.round(this.options.resolution * Common.height)); this.cellScale.set(1 / w, 1 / h); this.fboSize.set(w, h); } resize() { this.calcSize(); for (const k in this.fbos) this.fbos[k].setSize(this.fboSize.x, this.fboSize.y); } update() { this.boundarySpace.copy(this.options.isBounce ? new THREE.Vector2(0, 0) : this.cellScale); this.advection.update({ dt: this.options.dt, isBounce: this.options.isBounce, BFECC: this.options.BFECC }); this.externalForce.update({ cursor_size: this.options.cursor_size, mouse_force: this.options.mouse_force, cellScale: this.cellScale }); let vel = this.fbos.vel_1; if (this.options.isViscous) vel = this.viscous.update({ iterations: this.options.iterations_viscous, dt: this.options.dt }); this.divergence.update({ vel }); const pressure = this.poisson.update({ iterations: this.options.iterations_poisson }); this.pressure.update({ vel, pressure }); } }
-    class Output { constructor() { this.simulation = new Simulation({ mouse_force: mouseForce, cursor_size: cursorSize, resolution, isViscous, viscous, dt, BFECC, isBounce }); this.scene = new THREE.Scene(); this.camera = new THREE.Camera(); this.output = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.RawShaderMaterial({ vertexShader: fv, fragmentShader: cf, transparent: true, depthWrite: false, uniforms: { velocity: { value: this.simulation.fbos.vel_0.texture }, boundarySpace: { value: new THREE.Vector2() }, palette: { value: paletteTex }, bgColor: { value: bgVec4 } } })); this.scene.add(this.output); } resize() { this.simulation.resize(); } render() { if (Common.renderer) { Common.renderer.setRenderTarget(null); Common.renderer.render(this.scene, this.camera); } } update() { this.simulation.update(); this.render(); } }
+    class Output { constructor() { this.simulation = new Simulation({ mouse_force: mouseForce, cursor_size: cursorSize, resolution, isViscous, viscous, dt, BFECC, isBounce }); this.scene = new THREE.Scene(); this.camera = new THREE.Camera(); this.output = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.RawShaderMaterial({ vertexShader: fv, fragmentShader: cf, transparent: true, depthWrite: false, uniforms: { velocity: { value: this.simulation.fbos.vel_0.texture }, boundarySpace: { value: new THREE.Vector2() }, palette: { value: paletteTex }, bgColor: { value: bgVec4 } } })); this.scene.add(this.output); } resize() { const isMobile = window.innerWidth < 768; this.simulation.options.cursor_size = isMobile ? cursorSize * 0.5 : cursorSize; this.simulation.resize(); } render() { if (Common.renderer) { Common.renderer.setRenderTarget(null); Common.renderer.render(this.scene, this.camera); } } update() { this.simulation.update(); this.render(); } }
     class WebGLManager { constructor(props) { this.props = props; this.lastUserInteraction = performance.now(); this.running = false; this._loop = this.loop.bind(this); this._resize = this.resize.bind(this); Common.init(props.$wrapper); Mouse.init(props.$wrapper); Mouse.autoIntensity = props.autoIntensity; Mouse.takeoverDuration = props.takeoverDuration; Mouse.onInteract = () => { this.lastUserInteraction = performance.now(); if (this.autoDriver) this.autoDriver.forceStop(); }; this.autoDriver = new AutoDriver(Mouse, this, { enabled: props.autoDemo, speed: props.autoSpeed, resumeDelay: props.autoResumeDelay, rampDuration: props.autoRampDuration }); this.init(); window.addEventListener('resize', this._resize); this._onVisibility = () => { if (document.hidden) this.pause(); else if (isVisibleRef.current) this.start(); }; document.addEventListener('visibilitychange', this._onVisibility); } init() { if (Common.renderer) { this.props.$wrapper.prepend(Common.renderer.domElement); this.output = new Output(); } } resize() { Common.resize(); this.output.resize(); } render() { if (this.autoDriver) this.autoDriver.update(); Mouse.update(); Common.update(); this.output.update(); } loop() { if (this.running) { this.render(); rafRef.current = requestAnimationFrame(this._loop); } } start() { if (!this.running) { this.running = true; this._loop(); } } pause() { this.running = false; if (rafRef.current) cancelAnimationFrame(rafRef.current); rafRef.current = null; } dispose() { window.removeEventListener('resize', this._resize); if (this._onVisibility) document.removeEventListener('visibilitychange', this._onVisibility); Mouse.dispose(); if (Common.renderer) { const c = Common.renderer.domElement; if (c.parentNode) c.parentNode.removeChild(c); Common.renderer.dispose(); } } }
     const webgl = new WebGLManager({ $wrapper: mountRef.current, autoDemo, autoSpeed, autoIntensity, takeoverDuration, autoResumeDelay, autoRampDuration });
     webglRef.current = webgl; webgl.start();
@@ -310,7 +310,30 @@ function GlassCube() {
 
     /* ── Resize ──────────────────────────────────────── */
     const ro = new ResizeObserver(() => {
-      renderer.setSize(container.offsetWidth, container.offsetHeight);
+      if (!mounted) return;
+      const w = container.offsetWidth;
+      const h = container.offsetHeight;
+      const screenW = window.innerWidth;
+      const isMobile = screenW < 768;
+      const isTablet = screenW >= 768 && screenW < 1280;
+
+      // 1. 픽셀 비율 및 크기 반응형 (모바일 성능 최적화)
+      renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1.5) : Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(w, h);
+
+      // 2. 카메라 aspect 비율 업데이트 (캔버스가 항상 viewport에 맞도록)
+      if (h > 0) {
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+
+      // 3. 브레이크포인트 기준 큐브 사이즈 반응형 (Desktop: 1, Tablet: 0.75, Mobile: 0.5)
+      let scale = 1;
+      if (isMobile) scale = 0.5;
+      else if (isTablet) scale = 0.75;
+
+      cube.scale.set(1.1 * scale, 1.1 * scale, 1.1 * scale);
+      inner.scale.set(1.1 * scale, 1.1 * scale, 1.1 * scale);
     });
     ro.observe(container);
 
@@ -334,11 +357,10 @@ function GlassCube() {
       ref={mountRef}
       style={{
         position: 'absolute',
-        top: '40%', left: '50%', // <-- 빨간색 박스 높이에 맞게 수정됨
-        transform: 'translate(-50%, -50%)',
+        inset: 0,
         zIndex: 1,
         pointerEvents: 'none',
-        width: 616, height: 616,
+        width: '100%', height: '100%',
       }}
     />
   );
