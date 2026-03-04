@@ -327,9 +327,10 @@ function GlassCube() {
       }
 
       // 3. 브레이크포인트에 따른 CSS Scale 조정
-      let scale = 1;
-      if (isMobile) scale = 0.5;
-      else if (isTablet) scale = 0.75;
+      // 기준: Desktop 0.8, Tablet 0.8*0.75=0.6, Mobile 0.8*0.5=0.4
+      let scale = 0.8;
+      if (isMobile) scale = 0.4;
+      else if (isTablet) scale = 0.6;
 
       container.style.transform = `translate(-50%, -50%) scale(${scale})`;
 
@@ -361,7 +362,7 @@ function GlassCube() {
       ref={mountRef}
       style={{
         position: 'absolute',
-        top: '27%', left: '50%', // 빨간색 박스 중심 높이에 맞춤 (1920x1080 기준 스크린샷 분석)
+        top: '20%', left: '50%', // 빨간색 박스 상단 높이에 맞춤 (scale 0.8 기준, 헤더 공간 확보)
         transform: 'translate(-50%, -50%)',
         zIndex: 1,
         pointerEvents: 'none',
