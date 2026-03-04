@@ -334,7 +334,7 @@ function GlassCube() {
       ref={mountRef}
       style={{
         position: 'absolute',
-        top: '25%', left: '50%', // <-- 빨간색 박스 위치에 맞게 수정됨
+        top: '40%', left: '50%', // <-- 빨간색 박스 높이에 맞게 수정됨
         transform: 'translate(-50%, -50%)',
         zIndex: 1,
         pointerEvents: 'none',
