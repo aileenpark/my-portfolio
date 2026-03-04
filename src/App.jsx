@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import Header from "./components/Header.jsx";
+import Hero from "./components/Hero.jsx";
 
 /* ══════════════════════════════════════════════════════
    DEVICE DETECTION UTILITY
@@ -1073,7 +1074,7 @@ function GlassCube() {
         opacity: 0.65,
       });
     const cube = new THREE.Mesh(cubeGeo, cubeMat);
-    cube.scale.set(1.1, 1.1, 1.1);
+    cube.scale.set(1.21, 1.21, 1.21); // Increased by 10% from 1.1 -> 1.21
     scene.add(cube);
 
     const innerGeo = new THREE.OctahedronGeometry(0.52, isMobile ? 1 : 2);
@@ -1103,7 +1104,7 @@ function GlassCube() {
         opacity: 0.6,
       });
     const inner = new THREE.Mesh(innerGeo, innerMat);
-    inner.scale.set(1.1, 1.1, 1.1);
+    inner.scale.set(1.21, 1.21, 1.21); // Increased by 10% from 1.1 -> 1.21
     scene.add(inner);
 
     scene.add(new THREE.AmbientLight(0xffffff, isLowEnd ? 0.8 : 0.4));
@@ -1210,8 +1211,8 @@ function GlassCube() {
       if (mob) scale = 0.4;
       else if (tab) scale = 0.6;
       container.style.transform = `translate(-50%, -50%) scale(${scale})`;
-      cube.scale.set(1.1, 1.1, 1.1);
-      inner.scale.set(1.1, 1.1, 1.1);
+      cube.scale.set(1.21, 1.21, 1.21);  // Updated scale
+      inner.scale.set(1.21, 1.21, 1.21); // Updated scale
     };
     window.addEventListener("resize", handleResize);
     handleResize();
@@ -1237,7 +1238,7 @@ function GlassCube() {
       ref={mountRef}
       style={{
         position: "absolute",
-        top: "32%",
+        top: "40%",
         left: "50%",
         transform: "translate(-50%, -50%)",
         zIndex: 1,
@@ -1292,6 +1293,7 @@ export default function App() {
       }}
     >
       <Header />
+      <Hero />
       {/* WebGL layer */}
       <div
         style={{
