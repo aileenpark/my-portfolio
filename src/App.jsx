@@ -4,6 +4,7 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
+import Works from "./components/Works.jsx";
 
 /* ══════════════════════════════════════════════════════
    DEVICE DETECTION UTILITY
@@ -40,7 +41,9 @@ function LiquidEther({
   takeoverDuration = 0.25,
   autoResumeDelay = 1000,
   autoRampDuration = 0.6,
+  isPaused = false,
 }) {
+  const isPausedRef = useRef(isPaused);
   const mountRef = useRef(null);
   const webglRef = useRef(null);
   const resizeObserverRef = useRef(null);
@@ -48,6 +51,17 @@ function LiquidEther({
   const intersectionObserverRef = useRef(null);
   const isVisibleRef = useRef(true);
   const resizeRafRef = useRef(null);
+
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+    if (webglRef.current) {
+      if (isPaused) {
+        webglRef.current.pause();
+      } else if (isVisibleRef.current && !document.hidden) {
+        webglRef.current.start();
+      }
+    }
+  }, [isPaused]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -795,7 +809,7 @@ function LiquidEther({
         this.init();
         window.addEventListener("resize", this._resize);
         this._onVisibility = () => {
-          if (document.hidden) this.pause();
+          if (document.hidden || isPausedRef.current) this.pause();
           else if (isVisibleRef.current) this.start();
         };
         document.addEventListener("visibilitychange", this._onVisibility);
@@ -881,7 +895,7 @@ function LiquidEther({
         const v = entries[0].isIntersecting;
         isVisibleRef.current = v;
         if (webglRef.current)
-          v && !document.hidden
+          v && !document.hidden && !isPausedRef.current
             ? webglRef.current.start()
             : webglRef.current.pause();
       },
@@ -928,8 +942,13 @@ function LiquidEther({
 /* ══════════════════════════════════════════════════════
    HOLOGRAPHIC CRYSTAL CUBE
 ══════════════════════════════════════════════════════ */
-function GlassCube() {
+function GlassCube({ isPaused = false }) {
   const mountRef = useRef(null);
+  const isPausedRef = useRef(isPaused);
+
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
   useEffect(() => {
     const container = mountRef.current;
@@ -1153,6 +1172,8 @@ function GlassCube() {
 
     const animate = () => {
       rafId = requestAnimationFrame(animate);
+      if (isPausedRef.current || !mounted) return;
+
       frameCount++;
       t += 0.011;
       const dX = mouseX - prevMouseX,
@@ -1255,12 +1276,19 @@ function GlassCube() {
 ══════════════════════════════════════════════════════ */
 export default function App() {
   const [webglFallback, setWebglFallback] = useState(false);
+  const [isHeroPaused, setIsHeroPaused] = useState(false);
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 1280;
   });
 
   useEffect(() => {
+    // Ensure page starts at top on reload
+    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+    }
+
     const handleResize = () => setIsMobileOrTablet(window.innerWidth < 1280);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -1286,22 +1314,25 @@ export default function App() {
     <div
       style={{
         position: "relative",
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
+        width: "100%",
+        minHeight: "100vh",
         background: "#ffffff",
       }}
     >
       <Header />
-      <Hero />
-      {/* WebGL layer */}
+      <Hero onPauseChange={setIsHeroPaused} />
+      <Works />
+      {/* WebGL layer — fixed so it stays behind the Hero as background */}
       <div
         style={{
-          position: "absolute",
+          position: "fixed",
           inset: 0,
+          zIndex: 0,
           visibility: webglFallback ? "hidden" : "visible",
           opacity: webglFallback ? 0 : 1,
-          pointerEvents: webglFallback ? "none" : "auto",
+          pointerEvents: "none",  // never block scroll or clicks
+          width: "100vw",
+          height: "100vh",
         }}
       >
         {/* Fluid background */}
@@ -1327,11 +1358,12 @@ export default function App() {
             iterationsViscous={isMobileOrTablet ? 12 : 32}
             BFECC={!isMobileOrTablet}
             style={{ width: "100%", height: "100%" }}
+            isPaused={isHeroPaused}
           />
         </div>
 
         {/* Glass Cube */}
-        <GlassCube />
+        <GlassCube isPaused={isHeroPaused} />
       </div>
 
       {/* Fallback UI */}
