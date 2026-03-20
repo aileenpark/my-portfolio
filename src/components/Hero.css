@@ -81,9 +81,8 @@
     width: 100%;
     height: auto;
     display: block;
-    will-change: transform;
-    /* GPU compositing hint for scale animation */
     shape-rendering: geometricPrecision;
+    overflow: visible !important;
 }
 
 /* --- Responsive Breakpoints --- */
