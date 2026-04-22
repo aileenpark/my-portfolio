@@ -98,18 +98,20 @@
 @media (max-width: 768px) {
     .hero-copyright {
         left: 5vw;
-        top: 88vh;
-        /* Shift down lightly for smaller vertical space */
+        top: auto;
+        bottom: 8vh;
     }
 
     .hero-intro {
-        left: unset;
+        left: 5vw;
         right: 5vw;
-        top: 52vh;
+        top: 38vh;
+        white-space: normal;
+        max-width: 90vw;
     }
 
     .hero-headline {
-        top: 65vh;
+        top: 58vh;
     }
 }
 

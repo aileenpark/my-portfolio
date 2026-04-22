@@ -1356,10 +1356,10 @@ export default function App() {
             mouseForce={isMobileOrTablet ? 15 : 22}
             cursorSize={isMobileOrTablet ? 80 : 150}
             autoDemo={true}
-            autoSpeed={isMobileOrTablet ? 0.3 : 0.42}
-            autoIntensity={isMobileOrTablet ? 1.5 : 2.5}
+            autoSpeed={isMobileOrTablet ? 0.35 : 0.42}
+            autoIntensity={isMobileOrTablet ? 2.0 : 2.5}
             autoRampDuration={1.1}
-            autoResumeDelay={1000}
+            autoResumeDelay={isMobile ? 0 : 1000}
             resolution={isMobileOrTablet ? 0.25 : 0.55}
             iterationsPoisson={isMobileOrTablet ? 12 : 32}
             iterationsViscous={isMobileOrTablet ? 12 : 32}

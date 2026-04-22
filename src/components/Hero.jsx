@@ -36,6 +36,7 @@ export default function Hero({ onPauseChange }) {
             const svgRect = container.getBoundingClientRect();
 
             const vp = window.innerWidth;
+            const isMobileVp = vp < 768;
             const rInitX = vp * (54.9065 / 1920);
             const rInitY = rInitX * 0.9334;
             const cx = svgRect.left + vp * O_CENTER_X_RATIO;
@@ -52,7 +53,13 @@ export default function Hero({ onPauseChange }) {
                 start: 'top top',
                 end: '+=100%',
                 pin: true,
-                scrub: 1,
+                scrub: isMobileVp ? 0.4 : 1,
+                snap: isMobileVp ? {
+                    snapTo: [0, 1],
+                    duration: { min: 0.8, max: 1.2 },
+                    delay: 0.05,
+                    ease: 'power2.inOut',
+                } : undefined,
                 onUpdate: (self) => {
                     const vp = window.innerWidth;
                     const vh = window.innerHeight;
