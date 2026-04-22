@@ -1,5 +1,10 @@
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
+
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
 import { createBrowserRouter, RouterProvider, Outlet, useLocation } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'

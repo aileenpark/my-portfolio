@@ -1358,7 +1358,7 @@ export default function App() {
             autoDemo={true}
             autoSpeed={isMobileOrTablet ? 0.35 : 0.42}
             autoIntensity={isMobileOrTablet ? 2.0 : 2.5}
-            autoRampDuration={1.1}
+            autoRampDuration={isMobile ? 0.3 : 1.1}
             autoResumeDelay={isMobile ? 0 : 1000}
             resolution={isMobileOrTablet ? 0.25 : 0.55}
             iterationsPoisson={isMobileOrTablet ? 12 : 32}

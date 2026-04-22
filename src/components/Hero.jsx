@@ -56,7 +56,7 @@ export default function Hero({ onPauseChange }) {
                 scrub: isMobileVp ? 0.4 : 1,
                 snap: isMobileVp ? {
                     snapTo: [0, 1],
-                    duration: { min: 0.8, max: 1.2 },
+                    duration: { min: 0.3, max: 0.6 },
                     delay: 0.05,
                     ease: 'power2.inOut',
                 } : undefined,
