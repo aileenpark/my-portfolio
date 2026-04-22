@@ -1281,6 +1281,10 @@ export default function App() {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 1280;
   });
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 768;
+  });
 
   useEffect(() => {
     // Ensure page starts at top on reload
@@ -1289,7 +1293,10 @@ export default function App() {
       window.scrollTo(0, 0);
     }
 
-    const handleResize = () => setIsMobileOrTablet(window.innerWidth < 1280);
+    const handleResize = () => {
+      setIsMobileOrTablet(window.innerWidth < 1280);
+      setIsMobile(window.innerWidth < 768);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -1362,8 +1369,8 @@ export default function App() {
           />
         </div>
 
-        {/* Glass Cube */}
-        <GlassCube isPaused={isHeroPaused} />
+        {/* Glass Cube — skipped on mobile for performance */}
+        {!isMobile && <GlassCube isPaused={isHeroPaused} />}
       </div>
 
       {/* Fallback UI */}
