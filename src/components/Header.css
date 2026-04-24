@@ -22,7 +22,8 @@
 .header-logo,
 .header-nav-desktop,
 .hamburger,
-.mobile-menu {
+.mobile-menu,
+.mobile-header-right {
     pointer-events: auto;
 }
 
@@ -78,6 +79,29 @@
     color: #121212;
     text-align: center;
     white-space: nowrap;
+}
+
+/* --- Contact Chip Button --- */
+
+.nav-contact-chip {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: #ffffff;
+    background: #121212;
+    border: none;
+    border-radius: 40px;
+    padding: 6px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.nav-contact-chip:hover {
+    opacity: 0.7;
 }
 
 /* --- Mobile Hamburger & Menu --- */
@@ -160,6 +184,11 @@
         color: #ffffff;
     }
 
+    .nav-contact-chip {
+        color: #121212;
+        background: #ffffff;
+    }
+
     .hamburger span {
         background-color: #ffffff;
     }
@@ -193,6 +222,27 @@
 @media (max-width: 768px) {
     .header-nav-desktop {
         display: none;
+    }
+
+    .mobile-header-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: absolute;
+        right: 5vw;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: auto;
+    }
+
+    .mobile-header-right .hamburger {
+        position: static;
+        transform: none;
+    }
+
+    .mobile-header-right .nav-contact-chip {
+        font-size: clamp(11px, 3vw, 14px);
+        padding: 5px clamp(10px, 3vw, 14px);
     }
 
     .hamburger {

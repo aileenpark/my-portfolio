@@ -1,0 +1,395 @@
+/* ── Fonts ── */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600&display=swap');
+
+/* ── Overlay ── */
+.dc-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(10, 10, 10, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+.dc-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.dc-overlay-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.2s;
+    z-index: 10;
+    box-sizing: border-box;
+}
+
+.dc-overlay-close svg {
+    display: block;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+.dc-overlay-close:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.dc-card-wrapper {
+    transform: translateY(28px) scale(0.95);
+    opacity: 0;
+    transition: transform 0.42s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.35s ease;
+}
+
+.dc-overlay.visible .dc-card-wrapper {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* ── Card scene ── */
+.dc-card-scene {
+    width: 360px;
+    height: 620px;
+    perspective: 1400px;
+    cursor: pointer;
+}
+
+@media (max-width: 420px) {
+    .dc-card-scene {
+        width: calc(100vw - 48px);
+        height: calc((100vw - 48px) * 620 / 360);
+    }
+}
+
+.dc-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.dc-card-inner.flipped {
+    transform: rotateY(180deg);
+}
+
+.dc-card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.35);
+}
+
+.dc-card-back-face {
+    transform: rotateY(180deg);
+}
+
+/* ── FRONT ── */
+.dc-front {
+    box-sizing: border-box;
+    background: #2B2AFF;
+    color: #fff;
+    padding: 24px 26px 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dc-front-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
+
+.dc-flip-hint {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 11px;
+    opacity: 0.55;
+}
+
+.dc-front-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.dc-front-text {
+    font-family: 'Fraunces', serif;
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+}
+
+.dc-name {
+    font-size: 66px;
+    font-weight: 300;
+}
+
+.dc-comma {
+    font-style: italic;
+}
+
+.dc-line-regular {
+    font-size: 52px;
+    font-weight: 400;
+}
+
+.dc-a {
+    font-style: italic;
+    font-weight: 300;
+}
+
+.dc-connects-row {
+    display: flex;
+    align-items: center;
+}
+
+.dc-connects {
+    font-size: 52px;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.dc-arrow {
+    margin-left: 8px;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.dc-front-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    padding-top: 13px;
+    flex-shrink: 0;
+}
+
+.dc-ftr-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dc-ftr-label {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    opacity: 0.5;
+    text-transform: uppercase;
+}
+
+.dc-ftr-val {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 11px;
+}
+
+/* ── BACK ── */
+.dc-back {
+    box-sizing: border-box;
+    background: #F2EDE3;
+    color: #1A1A1A;
+    padding: 24px 26px 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dc-back-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
+
+.dc-role-tag {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 9.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #2B2AFF;
+    font-weight: 700;
+    padding-top: 3px;
+}
+
+.dc-name-block {
+    margin-top: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.dc-name-kr {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.dc-name-en {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: #2B2AFF;
+}
+
+.dc-contact-list {
+    margin-top: 14px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.dc-contact-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    gap: 8px;
+    cursor: pointer;
+}
+
+.dc-contact-row:hover .dc-c-action {
+    color: #2B2AFF;
+}
+
+.dc-c-label {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #2B2AFF;
+    font-weight: 700;
+    width: 46px;
+    flex-shrink: 0;
+}
+
+.dc-c-val {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 11px;
+    flex: 1;
+    color: #1A1A1A;
+}
+
+.dc-c-action {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 8px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.3);
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    text-decoration: none;
+}
+
+.dc-c-action.done {
+    color: #2B2AFF;
+}
+
+.dc-tagline-zone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8px 0;
+}
+
+.dc-tagline-continues {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: rgba(0, 0, 0, 0.22);
+    margin-bottom: 8px;
+}
+
+.dc-tagline-word {
+    font-family: 'Fraunces', serif;
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: #1A1A1A;
+    display: block;
+}
+
+.dc-tagline-em {
+    font-style: italic;
+    font-weight: 600;
+}
+
+.dc-and {
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 400;
+    opacity: 0.4;
+}
+
+.dc-back-footer {
+    flex-shrink: 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dc-save-btn {
+    width: 100%;
+    background: #2B2AFF;
+    color: #fff;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.dc-save-btn:hover {
+    opacity: 0.85;
+}
+
+/* ── Default trigger button ── */
+.dc-default-trigger {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #121212;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.2s;
+}
+
+.dc-default-trigger:hover {
+    opacity: 0.6;
+}
