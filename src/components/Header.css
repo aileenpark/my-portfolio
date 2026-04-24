@@ -27,6 +27,10 @@
     pointer-events: auto;
 }
 
+.mobile-header-right {
+    display: none;
+}
+
 .header-logo {
     position: absolute;
     left: 352px;
@@ -226,6 +230,7 @@
 
     .mobile-header-right {
         display: flex;
+        /* overrides the default display: none above */
         align-items: center;
         gap: 8px;
         position: absolute;
