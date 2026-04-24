@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Header.css';
 import logoUrl from '../assets/logo.svg';
+import DigitalCard from './DigitalCard';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,18 +24,32 @@ export default function Header() {
                     <a href="#resume" className="nav-link" data-name="nav/resume" data-node-id="16:114">
                         <span className="nav-text" data-node-id="16:115">Résumé</span>
                     </a>
+
+                    {/* 디지털 명함 트리거 — Contact 칩 버튼 */}
+                    <DigitalCard
+                        trigger={
+                            <button className="nav-contact-chip">Contact</button>
+                        }
+                    />
                 </nav>
 
-                {/* Mobile Hamburger Button */}
-                <button
-                    className={`hamburger ${isMenuOpen ? 'open' : ''}`}
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    aria-label="Toggle menu"
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+                {/* Mobile Contact Chip + Hamburger */}
+                <div className="mobile-header-right">
+                    <DigitalCard
+                        trigger={
+                            <button className="nav-contact-chip">Contact</button>
+                        }
+                    />
+                    <button
+                        className={`hamburger ${isMenuOpen ? 'open' : ''}`}
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
             </div>
 
             {/* Mobile Menu Dropdown */}
