@@ -139,18 +139,32 @@ export default function SunoPage() {
               top: "15.926%",
               width: "17.552%",
               aspectRatio: "337/726",
-              borderRadius: "14.24%",
-              overflow: "hidden",
             }}
           >
-            <video
-              src="/suno/screen-video.mov"
-              autoPlay
-              loop
-              muted
-              playsInline
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-            />
+            {/* SVG mask clips video to rounded corners, scales with container */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                WebkitMaskImage: "url('/suno/screen-mask.svg')",
+                maskImage: "url('/suno/screen-mask.svg')",
+                WebkitMaskSize: "100% 100%",
+                maskSize: "100% 100%",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "0 0",
+                maskPosition: "0 0",
+              }}
+            >
+              <video
+                src="/suno/screen-video.mov"
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
             <img
               src="/suno/system-ui.png"
               alt=""
