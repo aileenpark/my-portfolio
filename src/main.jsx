@@ -6,11 +6,14 @@ import App from './App.jsx'
 import WorksPage from './pages/WorksPage.jsx'
 import SunoPage from './pages/SunoPage.jsx'
 
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual'
+}
+
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => {
-    document.body.scrollTop = 0
-    document.documentElement.scrollTop = 0
+    window.scrollTo(0, 0)
   }, [pathname])
   return null
 }
