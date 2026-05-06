@@ -139,8 +139,6 @@ export default function SunoPage() {
               top: "15.926%",
               width: "17.552%",
               aspectRatio: "337/726",
-              borderRadius: "14.24%",
-              overflow: "hidden",
             }}
           >
             <video
