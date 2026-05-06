@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 
@@ -112,7 +112,22 @@ function MetaText({ category, year }) {
   );
 }
 
-function Thumbnail({ style }) {
+function Thumbnail({ style, image, video }) {
+  const [hovered, setHovered] = useState(false);
+  const videoRef = useRef(null);
+
+  function handleMouseEnter() {
+    setHovered(true);
+    videoRef.current?.play();
+  }
+  function handleMouseLeave() {
+    setHovered(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }
+
   return (
     <div
       style={{
@@ -120,9 +135,47 @@ function Thumbnail({ style }) {
         borderRadius: "6px",
         overflow: "hidden",
         flexShrink: 0,
+        position: "relative",
         ...style,
       }}
-    />
+      onMouseEnter={image && video ? handleMouseEnter : undefined}
+      onMouseLeave={image && video ? handleMouseLeave : undefined}
+    >
+      {image && (
+        <img
+          src={image}
+          alt=""
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+            position: "absolute",
+            inset: 0,
+          }}
+        />
+      )}
+      {video && (
+        <video
+          ref={videoRef}
+          src={video}
+          loop
+          muted
+          playsInline
+          preload="auto"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+            position: "absolute",
+            inset: 0,
+            opacity: hovered ? 1 : 0,
+            transition: "opacity 0.2s ease",
+          }}
+        />
+      )}
+    </div>
   );
 }
 
@@ -276,7 +329,11 @@ export default function WorksPage() {
                   }}
                   onClick={() => handleClick(project.href)}
                 >
-                  <Thumbnail style={{ width: "100%", aspectRatio: "16/9" }} />
+                  <Thumbnail
+                    style={{ width: "100%", aspectRatio: "16/9" }}
+                    image={project.id === "suno" ? "/suno/thumbnail.webp" : undefined}
+                    video={project.id === "suno" ? "/suno/thumbnail-video.mov" : undefined}
+                  />
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                     <p
                       style={{
