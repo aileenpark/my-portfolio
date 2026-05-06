@@ -106,6 +106,10 @@
 
 /* --- Mobile Hamburger & Menu --- */
 
+.mobile-header-right {
+    display: none;
+}
+
 .hamburger {
     display: none;
     background: none;
