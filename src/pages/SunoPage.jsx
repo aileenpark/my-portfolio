@@ -126,13 +126,38 @@ export default function SunoPage() {
         </div>
 
         {/* Hero image — full width */}
-        <div
-          style={{
-            width: "100%",
-            aspectRatio: "16/9",
-            background: C.surfaceSubtle,
-          }}
-        />
+        <div style={{ width: "100%", aspectRatio: "16/9", position: "relative", overflow: "hidden" }}>
+          <img
+            src="/suno/mockup-bg.png"
+            alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: "41.302%",
+              top: "15.926%",
+              width: "17.552%",
+              aspectRatio: "337/726",
+              borderRadius: "14.24%",
+              overflow: "hidden",
+            }}
+          >
+            <video
+              src="/suno/screen-video.mov"
+              autoPlay
+              loop
+              muted
+              playsInline
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+            />
+            <img
+              src="/suno/system-ui.png"
+              alt=""
+              style={{ position: "absolute", top: "1.58%", left: 0, width: "100%", pointerEvents: "none" }}
+            />
+          </div>
+        </div>
 
         {/* Project Meta */}
         <div style={{ padding: `60px ${hPad}` }}>
