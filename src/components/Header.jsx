@@ -21,7 +21,14 @@ export default function Header() {
                     <a href="#about" className="nav-link" data-name="nav/about" data-node-id="16:112">
                         <span className="nav-text" data-node-id="16:113">About</span>
                     </a>
-                    <a href="#resume" className="nav-link" data-name="nav/resume" data-node-id="16:114">
+                    <a
+                        href="/resume.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="nav-link"
+                        data-name="nav/resume"
+                        data-node-id="16:114"
+                    >
                         <span className="nav-text" data-node-id="16:115">Résumé</span>
                     </a>
 
@@ -57,7 +64,12 @@ export default function Header() {
                 <nav className="mobile-nav">
                     <a href="/works" onClick={() => setIsMenuOpen(false)}>Works</a>
                     <a href="#about" onClick={() => setIsMenuOpen(false)}>About</a>
-                    <a href="#resume" onClick={() => setIsMenuOpen(false)}>Résumé</a>
+                    <a
+                        href="/resume.pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setIsMenuOpen(false)}
+                    >Résumé</a>
                 </nav>
             </div>
         </header>
