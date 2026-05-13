@@ -1,13 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Header.css';
 import logoUrl from '../assets/logo.svg';
 import DigitalCard from './DigitalCard';
 
+function useAutoHide(disabled) {
+    const [hidden, setHidden] = useState(false);
+    useEffect(() => {
+        if (disabled) { setHidden(false); return; }
+        let lastY = window.scrollY;
+        let ticking = false;
+        const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                const y = window.scrollY;
+                const delta = y - lastY;
+                if (y < 10) setHidden(false);
+                else if (delta > 6) setHidden(true);
+                else if (delta < -6) setHidden(false);
+                lastY = y;
+                ticking = false;
+            });
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, [disabled]);
+    return hidden;
+}
+
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const hidden = useAutoHide(isMenuOpen);
 
     return (
-        <header className="header" data-name="header" data-node-id="16:93">
+        <header className={`header${hidden ? ' is-hidden' : ''}`} data-name="header" data-node-id="16:93">
             <div className="header-content">
                 <a href="/" className="header-logo" data-name="header/logo" data-node-id="16:95">
                     <img alt="NP Logo" className="logo-img" src={logoUrl} />

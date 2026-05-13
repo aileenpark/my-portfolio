@@ -23,6 +23,10 @@ const C = {
   textMuted: "#777777",
   textInverse: "#FFFFFF",
   textDisabled: "#DADADA",
+  surfaceSection: "#FAFAFA",
+  accentBg: "#EEF0FF",
+  accentText: "#4F55E4",
+  borderDefault: "#E5E5E5",
 };
 
 const F = {
@@ -54,19 +58,210 @@ const META_ITEMS = [
 ];
 
 const SIDE_NAV_ITEMS = [
-  { label: "Overview", active: true },
-  { label: "Discover", active: false },
-  { label: "Define", active: false },
-  { label: "Ideate", active: false },
-  { label: "Design System", active: false },
-  { label: "Key Solutions", active: false },
-  { label: "Evaluation", active: false },
-  { label: "Reflection", active: false },
+  { id: "overview", label: "Overview" },
+  { id: "discover", label: "Discover" },
+  { id: "define", label: "Define" },
+  { id: "ideate", label: "Ideate" },
+  { id: "design-system", label: "Design System" },
+  { id: "key-solutions", label: "Key Solutions" },
+  { id: "evaluation", label: "Evaluation" },
+  { id: "reflection", label: "Reflection" },
 ];
+
+const SCROLL_OFFSET = 120;
+
+function useScrollSpy(ids) {
+  const [activeId, setActiveId] = useState(ids[0]);
+  useEffect(() => {
+    const sections = ids
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    if (!sections.length) return;
+
+    const compute = () => {
+      const probe = SCROLL_OFFSET + 1;
+      let current = sections[0].id;
+      for (const s of sections) {
+        if (s.getBoundingClientRect().top <= probe) current = s.id;
+        else break;
+      }
+      setActiveId(current);
+    };
+
+    compute();
+    window.addEventListener("scroll", compute, { passive: true });
+    window.addEventListener("resize", compute);
+    return () => {
+      window.removeEventListener("scroll", compute);
+      window.removeEventListener("resize", compute);
+    };
+  }, [ids]);
+  return activeId;
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
+  window.scrollTo({ top, behavior: "smooth" });
+}
+
+function InsightCard({ label, title, body }) {
+  return (
+    <div
+      style={{
+        background: C.surfaceSection,
+        borderRadius: "8px",
+        padding: "18px 12px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+        width: "100%",
+      }}
+    >
+      <div
+        style={{
+          background: C.accentBg,
+          borderRadius: "8px",
+          padding: "4px 10px",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          alignSelf: "flex-start",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: F.base,
+            fontWeight: 600,
+            fontSize: "14px",
+            lineHeight: 1.4,
+            color: C.accentText,
+            whiteSpace: "nowrap",
+          }}
+        >
+          {label}
+        </span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px", paddingLeft: "4px" }}>
+        <p
+          style={{
+            fontFamily: F.display,
+            fontWeight: 600,
+            fontSize: "20px",
+            lineHeight: 1.4,
+            color: C.textPrimary,
+            margin: 0,
+          }}
+        >
+          {title}
+        </p>
+        <p
+          style={{
+            fontFamily: F.base,
+            fontWeight: 400,
+            fontSize: "16px",
+            lineHeight: 1.55,
+            color: C.textPrimary,
+            margin: 0,
+          }}
+        >
+          {body}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function DetailBlock({ title, items }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+      <p
+        style={{
+          fontFamily: F.base,
+          fontWeight: 600,
+          fontSize: "14px",
+          lineHeight: 1.4,
+          color: C.textSecondary,
+          margin: 0,
+        }}
+      >
+        {title}
+      </p>
+      <ul style={{ margin: 0, paddingLeft: "24px", listStyle: "disc" }}>
+        {items.map((item) => (
+          <li
+            key={item}
+            style={{
+              fontFamily: F.base,
+              fontWeight: 400,
+              fontSize: "16px",
+              lineHeight: 1.55,
+              color: C.textPrimary,
+            }}
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ImageCard({ src, caption, bordered = false, video = false }) {
+  return (
+    <figure style={{ margin: 0, flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+      <div
+        style={{
+          width: "100%",
+          height: "280px",
+          borderRadius: "4px",
+          overflow: "hidden",
+          border: bordered ? `1px solid ${C.borderDefault}` : "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {video ? (
+          <video
+            src={src}
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        ) : (
+          <img
+            src={src}
+            alt={caption}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        )}
+      </div>
+      <figcaption
+        style={{
+          fontFamily: F.base,
+          fontStyle: "italic",
+          fontWeight: 400,
+          fontSize: "14px",
+          lineHeight: 1.55,
+          color: C.textMuted,
+        }}
+      >
+        {caption}
+      </figcaption>
+    </figure>
+  );
+}
+
+const SIDE_NAV_IDS = SIDE_NAV_ITEMS.map((i) => i.id);
 
 export default function SunoPage() {
   useScrollable();
   const { hPad, isMobile } = useHPad();
+  const activeId = useScrollSpy(SIDE_NAV_IDS);
 
   return (
     <div style={{ background: C.surfaceDefault, minHeight: "100vh" }}>
@@ -237,64 +432,337 @@ export default function SunoPage() {
                 display: "flex",
                 flexDirection: "column",
                 gap: "12px",
+                position: "sticky",
+                top: `${SCROLL_OFFSET}px`,
+                alignSelf: "flex-start",
+                maxHeight: `calc(100vh - ${SCROLL_OFFSET + 24}px)`,
+                overflowY: "auto",
               }}
             >
-              {SIDE_NAV_ITEMS.map(({ label, active }) => (
-                <div
-                  key={label}
-                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
-                >
-                  {active && (
-                    <div
-                      style={{
-                        width: "6px",
-                        height: "6px",
-                        borderRadius: "1px",
-                        background: C.textSecondary,
-                        flexShrink: 0,
-                      }}
-                    />
-                  )}
-                  <span
+              {SIDE_NAV_ITEMS.map(({ id, label }) => {
+                const active = id === activeId;
+                return (
+                  <a
+                    key={id}
+                    href={`#${id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(id);
+                    }}
                     style={{
-                      fontFamily: F.base,
-                      fontWeight: active ? 600 : 500,
-                      fontSize: "18px",
-                      lineHeight: 1.4,
-                      color: active ? C.textSecondary : C.textDisabled,
-                      whiteSpace: "nowrap",
+                      display: "flex",
+                      gap: "8px",
+                      alignItems: "center",
+                      textDecoration: "none",
+                      cursor: "pointer",
                     }}
                   >
-                    {label}
-                  </span>
-                </div>
-              ))}
+                    {active && (
+                      <div
+                        style={{
+                          width: "6px",
+                          height: "6px",
+                          borderRadius: "1px",
+                          background: C.textSecondary,
+                          flexShrink: 0,
+                        }}
+                      />
+                    )}
+                    <span
+                      style={{
+                        fontFamily: F.base,
+                        fontWeight: active ? 600 : 500,
+                        fontSize: "18px",
+                        lineHeight: 1.4,
+                        color: active ? C.textSecondary : C.textDisabled,
+                        whiteSpace: "nowrap",
+                        transition: "color 0.2s ease",
+                      }}
+                    >
+                      {label}
+                    </span>
+                  </a>
+                );
+              })}
             </nav>
           )}
 
-          {/* Placeholder content */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
+          {/* Project content */}
+          <div style={{ flex: 1, minWidth: 0, maxWidth: "700px", display: "flex", flexDirection: "column", gap: "90px" }}>
+            {/* Overview section */}
+            <section
+              id="overview"
               style={{
-                height: "400px",
-                background: C.surfaceSubtle,
-                borderRadius: "8px",
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                flexDirection: "column",
+                gap: "24px",
+                alignItems: "flex-start",
+                scrollMarginTop: `${SCROLL_OFFSET}px`,
               }}
             >
-              <p
+              {/* section-label */}
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", alignSelf: "stretch" }}>
+                <div
+                  style={{
+                    width: "6px",
+                    alignSelf: "stretch",
+                    background: C.textSecondary,
+                    flexShrink: 0,
+                  }}
+                />
+                <p
+                  style={{
+                    fontFamily: F.label,
+                    fontWeight: 700,
+                    fontSize: "20px",
+                    lineHeight: 1.3,
+                    letterSpacing: "0.8px",
+                    color: C.textSecondary,
+                    textTransform: "uppercase",
+                    margin: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Overview
+                </p>
+              </div>
+
+              {/* section-body */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
+                <h2
+                  style={{
+                    fontFamily: F.display,
+                    fontWeight: 600,
+                    fontSize: isMobile ? "24px" : "32px",
+                    lineHeight: 1.4,
+                    color: C.textPrimary,
+                    margin: 0,
+                  }}
+                >
+                  Making your first AI song feel easy
+                </h2>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "14px",
+                    fontFamily: F.base,
+                    fontWeight: 400,
+                    fontSize: "18px",
+                    lineHeight: 1.55,
+                    color: C.textPrimary,
+                  }}
+                >
+                  <p style={{ margin: 0 }}>
+                    This project started from a problem I&rsquo;ve seen three times: building an AI music mixing service, using music AI tools as a listener, and now designing for one. Every time, users got stuck before they even started.
+                  </p>
+                  <p style={{ margin: 0 }}>
+                    Suno lets people create music using AI. Users type a style or lyrics, and the app makes a song.
+                  </p>
+                  <p style={{ margin: 0 }}>
+                    But new users often don&rsquo;t know what to write in the prompt. This case study focuses on the first creation experience, so users feel confident enough to keep going.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Discover section */}
+            <section
+              id="discover"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "24px",
+                alignItems: "flex-start",
+                scrollMarginTop: `${SCROLL_OFFSET}px`,
+              }}
+            >
+              {/* section-label */}
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", alignSelf: "stretch" }}>
+                <div style={{ width: "6px", alignSelf: "stretch", background: C.textSecondary, flexShrink: 0 }} />
+                <p
+                  style={{
+                    fontFamily: F.label,
+                    fontWeight: 700,
+                    fontSize: "20px",
+                    lineHeight: 1.3,
+                    letterSpacing: "0.8px",
+                    color: C.textSecondary,
+                    textTransform: "uppercase",
+                    margin: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Discover
+                </p>
+              </div>
+
+              <h2
                 style={{
-                  fontFamily: F.base,
-                  fontSize: "16px",
-                  color: C.textMuted,
+                  fontFamily: F.display,
+                  fontWeight: 600,
+                  fontSize: isMobile ? "24px" : "32px",
+                  lineHeight: 1.4,
+                  color: C.textPrimary,
                   margin: 0,
                 }}
               >
-                Content coming soon
-              </p>
-            </div>
+                Starting is hard, but users still want to create
+              </h2>
+
+              {/* section content */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "48px", width: "100%" }}>
+                {/* Desk Research subsection */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+                  <p
+                    style={{
+                      fontFamily: F.base,
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      lineHeight: 1.5,
+                      color: C.textMuted,
+                      margin: 0,
+                    }}
+                  >
+                    Desk Research
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
+                    <p
+                      style={{
+                        fontFamily: F.base,
+                        fontWeight: 400,
+                        fontSize: "18px",
+                        lineHeight: 1.55,
+                        color: C.textPrimary,
+                        margin: 0,
+                      }}
+                    >
+                      This desk research combined market research, app reviews, competitor analysis, and product structure analysis to identify key early UX problems.
+                    </p>
+
+                    <figure style={{ margin: 0, display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+                      <div
+                        style={{
+                          width: "100%",
+                          border: `1px solid ${C.borderDefault}`,
+                          borderRadius: "4px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <img
+                          src="/suno/discover/desk-research.png"
+                          alt="FigJam board with synthesized desk research"
+                          style={{ display: "block", width: "100%", height: "auto" }}
+                        />
+                      </div>
+                      <figcaption
+                        style={{
+                          fontFamily: F.base,
+                          fontStyle: "italic",
+                          fontWeight: 400,
+                          fontSize: "14px",
+                          lineHeight: 1.55,
+                          color: C.textMuted,
+                        }}
+                      >
+                        FigJam board with synthesized desk research
+                      </figcaption>
+                    </figure>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+                      {[
+                        { label: "Insight 1", title: "Good features, hard first step", body: "Users don’t know how to write prompts without guidance." },
+                        { label: "Insight 2", title: "Users still have a desire to create on mobile", body: "Users accept fewer features, but still want to create music on mobile." },
+                      ].map(({ label, title, body }) => (
+                        <InsightCard key={label} label={label} title={title} body={body} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* User Interview subsection */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+                  <p
+                    style={{
+                      fontFamily: F.base,
+                      fontWeight: 500,
+                      fontSize: "16px",
+                      lineHeight: 1.5,
+                      color: C.textMuted,
+                      margin: 0,
+                    }}
+                  >
+                    User Interview
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
+                    <p
+                      style={{
+                        fontFamily: F.base,
+                        fontWeight: 400,
+                        fontSize: "18px",
+                        lineHeight: 1.55,
+                        color: C.textPrimary,
+                        margin: 0,
+                      }}
+                    >
+                      I conducted one-on-one semi-structured in-depth interviews to understand how people experience Suno&rsquo;s creative flow, what makes them excited to create, and where the process begins to break down.
+                    </p>
+
+                    {/* details */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "20px", paddingLeft: "8px", width: "100%" }}>
+                      <DetailBlock
+                        title="Interview Purpose"
+                        items={[
+                          "To learn what users expect when they first open Suno",
+                          "To see where users feel confused or stuck while creating music",
+                          "To understand why users stop using the app or keep using it, even when it feels hard",
+                        ]}
+                      />
+                      <DetailBlock
+                        title="Participants"
+                        items={[
+                          "8 users in total",
+                          "6 users - new to Suno and had never made music before",
+                          "2 users - had music knowledge and had used Suno before",
+                          "All users had used AI services before",
+                        ]}
+                      />
+                    </div>
+
+                    {/* image row 1 */}
+                    <div style={{ display: "flex", gap: "20px", width: "100%", flexDirection: isMobile ? "column" : "row" }}>
+                      <ImageCard src="/suno/discover/interview-image.webp" caption="1:1 in-depth interview" objectFit="cover" />
+                      <ImageCard src="/suno/discover/transcripts.png" caption="Color-coded interview transcripts" bordered />
+                    </div>
+
+                    <p
+                      style={{
+                        fontFamily: F.base,
+                        fontWeight: 400,
+                        fontSize: "18px",
+                        lineHeight: 1.55,
+                        color: C.textPrimary,
+                        margin: 0,
+                      }}
+                    >
+                      Interview responses were grouped using affinity mapping to identify key patterns.
+                    </p>
+
+                    {/* image row 2 */}
+                    <div style={{ display: "flex", gap: "20px", width: "100%", flexDirection: isMobile ? "column" : "row" }}>
+                      <ImageCard src="/suno/discover/affinity-session-720p.mov" caption="Team affinity mapping session" video />
+                      <ImageCard src="/suno/discover/affinity-mapping.png" caption="Affinity mapping" />
+                    </div>
+
+                    <InsightCard
+                      label="Insight"
+                      title="Fun to start, hard to continue"
+                      body="Users enjoy creating music at first, but feel lost when the app doesn’t take the lead."
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </main>
