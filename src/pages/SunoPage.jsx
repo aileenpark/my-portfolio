@@ -750,7 +750,7 @@ export default function SunoPage() {
 
                     {/* image row 2 */}
                     <div style={{ display: "flex", gap: "20px", width: "100%", flexDirection: isMobile ? "column" : "row" }}>
-                      <ImageCard src="/suno/discover/affinity-session.mov" caption="Team affinity mapping session" video />
+                      <ImageCard src="/suno/discover/affinity-session-720p.mov" caption="Team affinity mapping session" video />
                       <ImageCard src="/suno/discover/affinity-mapping.png" caption="Affinity mapping" />
                     </div>
 
