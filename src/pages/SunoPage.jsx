@@ -763,6 +763,382 @@ export default function SunoPage() {
                 </div>
               </div>
             </section>
+
+            {/* Define section */}
+            <section
+              id="define"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "24px",
+                alignItems: "flex-start",
+                scrollMarginTop: `${SCROLL_OFFSET}px`,
+              }}
+            >
+              {/* section-label */}
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", alignSelf: "stretch" }}>
+                <div style={{ width: "6px", alignSelf: "stretch", background: C.textSecondary, flexShrink: 0 }} />
+                <p
+                  style={{
+                    fontFamily: F.label,
+                    fontWeight: 700,
+                    fontSize: "20px",
+                    lineHeight: 1.3,
+                    letterSpacing: "0.8px",
+                    color: C.textSecondary,
+                    textTransform: "uppercase",
+                    margin: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Define
+                </p>
+              </div>
+
+              {/* section content */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "48px", width: "100%" }}>
+                {/* headline + intro */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
+                  <h2
+                    style={{
+                      fontFamily: F.display,
+                      fontWeight: 600,
+                      fontSize: isMobile ? "24px" : "32px",
+                      lineHeight: 1.4,
+                      color: C.textPrimary,
+                      margin: 0,
+                    }}
+                  >
+                    Without clear signals, users don’t know what to do next
+                  </h2>
+                  <p
+                    style={{
+                      fontFamily: F.base,
+                      fontWeight: 400,
+                      fontSize: "18px",
+                      lineHeight: 1.55,
+                      color: C.textPrimary,
+                      margin: 0,
+                    }}
+                  >
+                    In this phase, we identified key user types, surfaced their core pain points, and aligned on the problems to prioritize.
+                  </p>
+                </div>
+
+                {/* Persona subsection */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+                  <p style={{ fontFamily: F.base, fontWeight: 500, fontSize: "16px", lineHeight: 1.5, color: C.textMuted, margin: 0 }}>
+                    Persona
+                  </p>
+                  <div style={{ display: "flex", gap: "20px", width: "100%", flexDirection: isMobile ? "column" : "row", alignItems: "stretch" }}>
+                    {[
+                      {
+                        img: "/suno/define/persona-1.png",
+                        label: "Persona 1",
+                        title: "First-time AI music creator who wants to express emotions easily",
+                        goals: [
+                          "Create music that matches how they feel, without knowing music terms",
+                          "Finish one song quickly and feel confident about the result",
+                        ],
+                        pains: [
+                          "Doesn’t know what to write when asked to enter a prompt",
+                          "Feels lost after the first result and doesn’t know what to do next",
+                        ],
+                      },
+                      {
+                        img: "/suno/define/persona-2.png",
+                        label: "Persona 2",
+                        title: "Music-experienced user who wants more control and understanding",
+                        goals: [
+                          "Understand why the AI creates different results each time",
+                          "Adjust and improve the result step by step",
+                        ],
+                        pains: [
+                          "Can’t change only the part they want",
+                          "The app makes music, but doesn’t explain how or why",
+                        ],
+                      },
+                    ].map((p) => (
+                      <div
+                        key={p.label}
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          border: `1px solid ${C.borderDefault}`,
+                          borderRadius: "8px",
+                          padding: "18px 14px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "16px",
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <img
+                          src={p.img}
+                          alt={p.label}
+                          style={{ width: "64px", height: "64px", borderRadius: "9999px", objectFit: "cover", display: "block" }}
+                        />
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+                          <p style={{ fontFamily: F.base, fontWeight: 600, fontSize: "14px", lineHeight: 1.4, color: C.accentText, margin: 0 }}>
+                            {p.label}
+                          </p>
+                          <p style={{ fontFamily: F.base, fontWeight: 400, fontSize: "16px", lineHeight: 1.55, color: C.textPrimary, margin: 0 }}>
+                            {p.title}
+                          </p>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <p style={{ fontFamily: F.base, fontWeight: 600, fontSize: "14px", lineHeight: 1.4, color: C.textSecondary, margin: 0 }}>
+                              Goals
+                            </p>
+                            <ul style={{ margin: 0, paddingLeft: "24px", listStyle: "disc" }}>
+                              {p.goals.map((g) => (
+                                <li key={g} style={{ fontFamily: F.base, fontWeight: 400, fontSize: "16px", lineHeight: 1.55, color: C.textPrimary }}>
+                                  {g}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <p style={{ fontFamily: F.base, fontWeight: 600, fontSize: "14px", lineHeight: 1.4, color: C.textSecondary, margin: 0 }}>
+                              Pain points
+                            </p>
+                            <ul style={{ margin: 0, paddingLeft: "24px", listStyle: "disc" }}>
+                              {p.pains.map((pn) => (
+                                <li key={pn} style={{ fontFamily: F.base, fontWeight: 400, fontSize: "16px", lineHeight: 1.55, color: C.textPrimary }}>
+                                  {pn}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Empathy Map subsection */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+                  <p style={{ fontFamily: F.base, fontWeight: 500, fontSize: "16px", lineHeight: 1.5, color: C.textMuted, margin: 0 }}>
+                    Empathy Map
+                  </p>
+                  <figure style={{ margin: 0, display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end", width: "100%" }}>
+                    <div
+                      style={{
+                        width: "100%",
+                        boxSizing: "border-box",
+                        border: `1px solid ${C.borderDefault}`,
+                        borderRadius: "4px",
+                        padding: "8px 16px",
+                        display: "flex",
+                        gap: "24px",
+                        flexDirection: isMobile ? "column" : "row",
+                        alignItems: "center",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {[
+                        { src: "/suno/define/empathy-map-1.png", alt: "Empathy map for Persona 1" },
+                        { src: "/suno/define/empathy-map-2.png", alt: "Empathy map for Persona 2" },
+                      ].map(({ src, alt }) => (
+                        <div
+                          key={src}
+                          style={{ flex: 1, minWidth: 0, aspectRatio: "1 / 1", width: "100%", position: "relative" }}
+                        >
+                          <img
+                            src={src}
+                            alt={alt}
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              display: "block",
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <figcaption
+                      style={{
+                        fontFamily: F.base,
+                        fontStyle: "italic",
+                        fontWeight: 400,
+                        fontSize: "14px",
+                        lineHeight: 1.55,
+                        color: C.textMuted,
+                        textAlign: "right",
+                      }}
+                    >
+                      Empathy mapping based on interview transcripts and affinity mapping
+                    </figcaption>
+                  </figure>
+                </div>
+
+                {/* HMW block */}
+                <div style={{ width: "100%", padding: "24px 0", boxSizing: "border-box" }}>
+                  <div
+                    style={{
+                      width: "100%",
+                      boxSizing: "border-box",
+                      background: C.accentText,
+                      padding: isMobile ? "60px 24px" : "100px 40px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: F.display,
+                        fontWeight: 700,
+                        fontSize: isMobile ? "24px" : "36px",
+                        lineHeight: 1.55,
+                        color: C.textInverse,
+                        textAlign: "center",
+                        margin: 0,
+                        width: "100%",
+                      }}
+                    >
+                      How might we help users know
+                      <br />
+                      what to do when creating a song?
+                    </p>
+                  </div>
+                </div>
+
+                {/* Feature Prioritization subsection */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
+                  <p style={{ fontFamily: F.base, fontWeight: 500, fontSize: "16px", lineHeight: 1.5, color: C.textMuted, margin: 0 }}>
+                    Feature Prioritization
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "14px", width: "100%" }}>
+                      <p
+                        style={{
+                          fontFamily: F.base,
+                          fontWeight: 400,
+                          fontSize: "18px",
+                          lineHeight: 1.55,
+                          color: C.textPrimary,
+                          margin: 0,
+                        }}
+                      >
+                        We prioritized features that help users know what to do next after their first song, focusing on high impact with low effort.
+                      </p>
+                      <ul style={{ margin: 0, paddingLeft: "24px", listStyle: "disc" }}>
+                        <li style={{ fontFamily: F.base, fontSize: "18px", lineHeight: 1.55, color: C.textPrimary }}>
+                          <span style={{ fontWeight: 600 }}>Eisenhower matrix</span>
+                          <span style={{ fontWeight: 400 }}> was used to evaluate value vs. effort</span>
+                        </li>
+                        <li style={{ fontFamily: F.base, fontSize: "18px", lineHeight: 1.55, color: C.textPrimary }}>
+                          <span style={{ fontWeight: 600 }}>Kano model</span>
+                          <span style={{ fontWeight: 400 }}> was used to understand user satisfaction vs. functionality</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* image row: Eisenhower + Kano */}
+                    <div style={{ display: "flex", gap: "20px", width: "100%", flexDirection: isMobile ? "column" : "row", alignItems: "stretch" }}>
+                      {[
+                        { src: "/suno/define/eisenhower.png", caption: "Eisenhower matrix" },
+                        { src: "/suno/define/kano.png", caption: "Kano model" },
+                      ].map(({ src, caption }) => (
+                        <figure
+                          key={caption}
+                          style={{ margin: 0, flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}
+                        >
+                          <div
+                            style={{
+                              width: "100%",
+                              aspectRatio: "1 / 1",
+                              border: `1px solid ${C.borderDefault}`,
+                              borderRadius: "4px",
+                              overflow: "hidden",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <img
+                              src={src}
+                              alt={caption}
+                              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                            />
+                          </div>
+                          <figcaption
+                            style={{
+                              fontFamily: F.base,
+                              fontStyle: "italic",
+                              fontWeight: 400,
+                              fontSize: "14px",
+                              lineHeight: 1.55,
+                              color: C.textMuted,
+                              textAlign: "right",
+                            }}
+                          >
+                            {caption}
+                          </figcaption>
+                        </figure>
+                      ))}
+                    </div>
+
+                    {/* selected + dropped lists */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "20px", paddingLeft: "8px", width: "100%" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+                        <p style={{ fontFamily: F.base, fontSize: "14px", lineHeight: 1.4, color: C.textSecondary, margin: 0 }}>
+                          <span style={{ fontWeight: 600 }}>Selected </span>
+                          <span style={{ fontWeight: 400 }}>(4)</span>
+                        </p>
+                        <ul style={{ margin: 0, paddingLeft: "24px", listStyle: "disc" }}>
+                          {[
+                            "Taste-first Onboarding",
+                            "Prompt Helper",
+                            "Prompt History",
+                            "Feedback-driven Personalization",
+                          ].map((item) => (
+                            <li
+                              key={item}
+                              style={{ fontFamily: F.base, fontWeight: 500, fontSize: "16px", lineHeight: 1.5, color: C.textPrimary }}
+                            >
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+                        <p style={{ fontFamily: F.base, fontSize: "14px", lineHeight: 1.4, color: C.textSecondary, margin: 0 }}>
+                          <span style={{ fontWeight: 600 }}>Considered but dropped </span>
+                          <span style={{ fontWeight: 400 }}>(2)</span>
+                        </p>
+                        <ul style={{ margin: 0, paddingLeft: "24px", listStyle: "disc" }}>
+                          {[
+                            {
+                              title: "Tutorial Video",
+                              body: "Watching someone else create doesn’t reduce first-time drop-off. It only delays the moment users have to start on their own.",
+                            },
+                            {
+                              title: "Auto Genre Detection",
+                              body: "Users lose the sense of control they came for. Conflicts with Persona 2’s need to understand and adjust results.",
+                            },
+                          ].map(({ title, body }) => (
+                            <li
+                              key={title}
+                              style={{ fontFamily: F.base, fontSize: "16px", lineHeight: 1.55, color: C.textPrimary }}
+                            >
+                              <div style={{ fontWeight: 500, lineHeight: 1.5 }}>{title}</div>
+                              <div style={{ fontWeight: 400 }}>{body}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </main>
