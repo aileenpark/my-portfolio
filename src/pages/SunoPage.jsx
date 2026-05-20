@@ -1878,7 +1878,7 @@ export default function SunoPage() {
                           }}
                         >
                           <img
-                            src="/suno/evaluation/ut-script.png"
+                            src="/suno/evaluation/ut-scripts.webp"
                             alt="Follow-up interview transcripts"
                             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                           />
