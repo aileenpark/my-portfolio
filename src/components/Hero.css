@@ -70,11 +70,6 @@
     justify-content: flex-start;
     align-items: center;
     overflow: visible;
-    /* SVG grows beyond viewport — must not clip */
-    transition: none;
-    /* no CSS transition — GSAP handles everything */
-    visibility: hidden;
-    /* ← 추가: GSAP 초기화 전까지 숨김 */
 }
 
 .headline-svg {
