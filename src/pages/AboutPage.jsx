@@ -1,0 +1,606 @@
+import { useEffect, useLayoutEffect, useState } from "react";
+import Header from "../components/Header";
+
+const C = {
+  surface: "var(--color-surface)",
+  surfaceInverted: "var(--color-surface-inverted)",
+  text: "var(--color-text)",
+  textMuted: "var(--color-text-muted)",
+  textSubtle: "var(--color-text-subtle)",
+  textInverse: "var(--color-text-inverse)",
+};
+
+const F = {
+  base: "var(--font-family-base)",
+  display: "var(--font-family-display)",
+  label: "var(--font-family-label)",
+  greeting: "'Helvetica Neue', var(--font-family-base)",
+};
+
+const ASSETS = {
+  background: "/about/images/background.webp",
+  teamSync: "/about/images/team-sync.webp",
+  atWork: "/about/images/at-work.webp",
+  singapore: "/about/images/singapore-gp.webp",
+  osaka: "/about/images/osaka.webp",
+  footerLogo: "/about/footer-logo.svg",
+  instagram: "/about/instagram.svg",
+  linkedin: "/about/linkedin.svg",
+  mail: "/about/mail.svg",
+};
+
+const KEYWORDS = [
+  "CS major",
+  "3 yrs in Product Planning",
+  "Figma + Code",
+  "Korea",
+];
+
+const SOCIAL_LINKS = {
+  instagram: "https://www.instagram.com/nayuningg/",
+  linkedin: "https://www.linkedin.com/in/nayuningg",
+  email: "mailto:nypark115@gmail.com",
+};
+
+function useScrollable() {
+  useLayoutEffect(() => {
+    document.documentElement.style.overflow = "auto";
+    document.body.style.overflow = "auto";
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
+  }, []);
+}
+
+function useViewport() {
+  const [width, setWidth] = useState(() =>
+    typeof window === "undefined" ? 1440 : window.innerWidth,
+  );
+
+  useEffect(() => {
+    const updateWidth = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
+  return {
+    isMobile: width <= 768,
+    isTablet: width > 768 && width <= 1280,
+  };
+}
+
+function CanvasSlot({ name }) {
+  return (
+    <canvas
+      aria-hidden="true"
+      data-canvas-slot={name}
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        display: "block",
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+function ImageFrame({ src, slot, aspectRatio, objectPosition = "center" }) {
+  return (
+    <div
+      data-image-hook={slot}
+      style={{
+        position: "relative",
+        width: "100%",
+        aspectRatio,
+        overflow: "hidden",
+        background: C.surface,
+      }}
+    >
+      <img
+        src={src}
+        alt=""
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition,
+          display: "block",
+        }}
+      />
+      <CanvasSlot name={`${slot}-drawline`} />
+    </div>
+  );
+}
+
+function ImageCard({
+  src,
+  caption,
+  slot,
+  aspectRatio,
+  objectPosition,
+  flex = 1,
+}) {
+  return (
+    <figure
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-2)",
+        flex,
+        minWidth: 0,
+        margin: 0,
+      }}
+    >
+      <ImageFrame
+        src={src}
+        slot={slot}
+        aspectRatio={aspectRatio}
+        objectPosition={objectPosition}
+      />
+      <figcaption
+        style={{
+          margin: 0,
+          fontFamily: F.base,
+          fontSize: "var(--font-size-caption-md)",
+          fontStyle: "italic",
+          fontWeight: 400,
+          lineHeight: 1.55,
+          color: C.textSubtle,
+          textAlign: "right",
+        }}
+      >
+        {caption}
+      </figcaption>
+    </figure>
+  );
+}
+
+function SectionLabel({ children, isMobile }) {
+  return (
+    <h2
+      style={{
+        width: isMobile ? "100%" : "160px",
+        margin: 0,
+        fontFamily: F.label,
+        fontSize: isMobile
+          ? "var(--font-size-title-sm)"
+          : "var(--font-size-title-md)",
+        fontWeight: 700,
+        lineHeight: 1.3,
+        letterSpacing: isMobile ? "0.72px" : "0.8px",
+        textTransform: "uppercase",
+        color: C.textMuted,
+      }}
+    >
+      {children}
+    </h2>
+  );
+}
+
+function BodyCopy({ children, isMobile }) {
+  return (
+    <div
+      style={{
+        width: "100%",
+        maxWidth: isMobile ? "none" : "700px",
+        fontFamily: F.base,
+        fontSize: isMobile
+          ? "var(--font-size-body-sm)"
+          : "var(--font-size-body-md)",
+        fontWeight: 400,
+        lineHeight: isMobile ? 1.5 : 1.55,
+        color: C.text,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function AboutSection({ label, children, isMobile }) {
+  return (
+    <section
+      data-about-section={label.toLowerCase().replaceAll(" ", "-")}
+      style={{
+        display: "grid",
+        gridTemplateColumns: isMobile
+          ? "minmax(0, 1fr)"
+          : "160px minmax(0, 800px)",
+        gap: isMobile ? "var(--space-6)" : "40px",
+        alignItems: "start",
+        width: "100%",
+      }}
+    >
+      <SectionLabel isMobile={isMobile}>{label}</SectionLabel>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-8)",
+          width: "100%",
+          minWidth: 0,
+        }}
+      >
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function SocialChip({ icon, children, href }) {
+  const commonStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    padding: "6px var(--space-4)",
+    border: `1px solid ${C.textInverse}`,
+    borderRadius: "var(--radius-md)",
+    color: C.textInverse,
+    fontFamily: F.label,
+    fontSize: "12px",
+    fontWeight: 400,
+    lineHeight: 1,
+    letterSpacing: "0.12px",
+    textTransform: "uppercase",
+    textDecoration: "none",
+    boxSizing: "border-box",
+    whiteSpace: "nowrap",
+  };
+
+  const content = (
+    <>
+      <img
+        src={icon}
+        alt=""
+        style={{ width: "20px", height: "20px", display: "block" }}
+      />
+      <span>{children}</span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a href={href} style={commonStyle}>
+        {content}
+      </a>
+    );
+  }
+
+  return <span style={commonStyle}>{content}</span>;
+}
+
+function Footer({ isMobile }) {
+  return (
+    <footer
+      style={{
+        marginTop: isMobile ? "var(--space-12)" : "var(--space-32)",
+        background: C.surfaceInverted,
+        color: C.textInverse,
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "var(--content-max)",
+          minHeight: isMobile ? "auto" : "300px",
+          margin: "0 auto",
+          padding: isMobile
+            ? "var(--space-8) var(--space-4)"
+            : "var(--space-12) var(--space-6)",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "flex-start" : "center",
+          justifyContent: "space-between",
+          gap: isMobile ? "34px" : "var(--space-12)",
+        }}
+      >
+        <p
+          style={{
+            margin: 0,
+            fontFamily: F.display,
+            fontSize: isMobile ? "var(--font-size-title-lg)" : "48px",
+            fontWeight: 600,
+            lineHeight: 1.4,
+            color: C.textInverse,
+          }}
+        >
+          Got something messy?
+          <br />
+          I’m into it.
+        </p>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: isMobile ? "flex-start" : "flex-end",
+            gap: isMobile ? "var(--space-4)" : "var(--space-8)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2)",
+            }}
+          >
+            <img
+              src={ASSETS.footerLogo}
+              alt=""
+              style={{
+                width: isMobile ? "18px" : "20px",
+                height: isMobile ? "18px" : "20px",
+              }}
+            />
+            <span
+              style={{
+                fontFamily: F.base,
+                fontSize: isMobile
+                  ? "var(--font-size-title-md)"
+                  : "var(--font-size-title-lg)",
+                fontWeight: 500,
+                lineHeight: 1.4,
+                color: C.textInverse,
+              }}
+            >
+              Nayun Park
+            </span>
+          </div>
+
+          <div
+            aria-label="Social links"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: isMobile ? "flex-start" : "flex-end",
+              gap: "var(--space-3)",
+            }}
+          >
+            <SocialChip icon={ASSETS.instagram} href={SOCIAL_LINKS.instagram}>
+              Instagram
+            </SocialChip>
+            <SocialChip icon={ASSETS.linkedin} href={SOCIAL_LINKS.linkedin}>
+              LinkedIn
+            </SocialChip>
+            <SocialChip icon={ASSETS.mail} href={SOCIAL_LINKS.email}>
+              e-mail
+            </SocialChip>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export default function AboutPage() {
+  useScrollable();
+  const { isMobile, isTablet } = useViewport();
+  const pairAspect = isMobile ? "4 / 3" : undefined;
+
+  return (
+    <div style={{ minHeight: "100vh", background: C.surface, color: C.text }}>
+      <Header />
+
+      <main
+        style={{
+          width: "100%",
+          maxWidth: "var(--content-max)",
+          margin: "0 auto",
+          padding: `${isMobile ? "92px" : "176px"} ${isMobile ? "var(--space-4)" : "var(--space-6)"} 0`,
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: "1000px" }}>
+          <div
+            data-greetings-hook
+            style={{
+              position: "relative",
+              display: "inline-block",
+              maxWidth: "100%",
+            }}
+          >
+            <h1
+              style={{
+                margin: 0,
+                fontFamily: F.greeting,
+                fontSize: isMobile ? "40px" : "56px",
+                fontWeight: 700,
+                lineHeight: isMobile ? 1.1 : 1.2,
+                letterSpacing: isMobile ? "-0.048px" : "-0.0672px",
+                color: C.text,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Hi, I’m Nayun.
+            </h1>
+            <CanvasSlot name="greetings-reveal" />
+          </div>
+
+          <p
+            style={{
+              margin: `${isMobile ? "var(--space-3)" : "var(--space-4)"} 0 0`,
+              fontFamily: F.base,
+              fontSize: isMobile
+                ? "var(--font-size-body-sm)"
+                : "var(--font-size-body-lg)",
+              fontWeight: 500,
+              lineHeight: 1.5,
+              color: C.textMuted,
+            }}
+          >
+            A product designer who ships what she designs.
+          </p>
+
+          <div
+            aria-label="Profile keywords"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "6px",
+              marginTop: isMobile ? "var(--space-3)" : "var(--space-6)",
+            }}
+          >
+            {KEYWORDS.map((keyword) => (
+              <span
+                key={keyword}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "32px",
+                  padding: "5px var(--space-4)",
+                  border: `1px solid ${C.textSubtle}`,
+                  borderRadius: "var(--radius-md)",
+                  boxSizing: "border-box",
+                  fontFamily: F.base,
+                  fontSize: isMobile
+                    ? "var(--font-size-caption-md)"
+                    : "var(--font-size-body-sm)",
+                  fontWeight: 500,
+                  lineHeight: isMobile ? 1.4 : 1.5,
+                  color: C.textSubtle,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {keyword}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: isMobile ? "52px" : "var(--space-20)",
+            width: "100%",
+            maxWidth: "1000px",
+            marginTop: isMobile ? "68px" : "var(--space-20)",
+          }}
+        >
+          <AboutSection label="Background" isMobile={isMobile}>
+            <BodyCopy isMobile={isMobile}>
+              <p style={{ margin: 0 }}>
+                I took the long way here. At 12, I taught myself Photoshop to
+                make my own fonts and banners. Then I studied computer science
+                and worked in product planning. Ten years later, I came back to
+                design: where I started.
+              </p>
+            </BodyCopy>
+            <ImageCard
+              src={ASSETS.background}
+              caption="Working in Figma"
+              slot="background"
+              aspectRatio="16 / 9"
+              objectPosition="center 38%"
+            />
+          </AboutSection>
+
+          <AboutSection label="How I Work" isMobile={isMobile}>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-4)",
+                alignItems: "flex-start",
+              }}
+            >
+              <ImageCard
+                src={ASSETS.teamSync}
+                caption="Team sync"
+                slot="team-sync"
+                aspectRatio={pairAspect || "4 / 3"}
+                flex={isMobile || isTablet ? 1 : 1.78}
+              />
+              <ImageCard
+                src={ASSETS.atWork}
+                caption={
+                  isMobile ? (
+                    <>
+                      Just another day
+                      <br />
+                      at work
+                    </>
+                  ) : (
+                    "Just another day at work"
+                  )
+                }
+                slot="at-work"
+                aspectRatio={pairAspect || "3 / 4"}
+                objectPosition="center 24%"
+                flex={1}
+              />
+            </div>
+            <BodyCopy isMobile={isMobile}>
+              <p style={{ margin: "0 0 14px" }}>
+                I notice small frictions fast. A flaky form, a missing back
+                button, a screen that feels one pixel off. It stays in my head.
+                I turn that into smoother flows, better structure, and details
+                that feel right.
+              </p>
+              <p style={{ margin: 0 }}>
+                I like making things people can see, touch, and use. I pick up
+                new tools early, but I only keep the ones that pass one test:
+                does it help me think faster, build better, or ship what I
+                designed?
+              </p>
+            </BodyCopy>
+          </AboutSection>
+
+          <AboutSection label="Off the Clock" isMobile={isMobile}>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-4)",
+                alignItems: "flex-start",
+              }}
+            >
+              <ImageCard
+                src={ASSETS.singapore}
+                caption="Lando wins in Singapore"
+                slot="singapore-gp"
+                aspectRatio={pairAspect || "3 / 4"}
+                objectPosition="center 38%"
+                flex={isMobile || isTablet ? 1 : 1}
+              />
+              <ImageCard
+                src={ASSETS.osaka}
+                caption="Osaka moment"
+                slot="osaka"
+                aspectRatio={pairAspect || "4 / 3"}
+                objectPosition="center"
+                flex={isMobile || isTablet ? 1 : 1.86}
+              />
+            </div>
+            <BodyCopy isMobile={isMobile}>
+              <p style={{ margin: "0 0 14px" }}>
+                When something grabs me, I move fast. I book the flight, host
+                the event, design the merch. There’s almost no gap between
+                liking something and doing something about it. Sports tend to
+                stick with me the longest. I’ve followed McLaren in F1 since
+                2023, because they keep surprising me every season, for better
+                or worse.
+              </p>
+              <p style={{ margin: 0 }}>
+                The eye that can’t ignore a messy interface is the same one that
+                sorts my bag into little pouches. That instinct shows up as UX
+                at work and as a neatly organized bag at home.
+              </p>
+            </BodyCopy>
+          </AboutSection>
+        </div>
+      </main>
+
+      <Footer isMobile={isMobile} />
+    </div>
+  );
+}

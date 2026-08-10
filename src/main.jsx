@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import WorksPage from './pages/WorksPage.jsx'
 import SunoPage from './pages/SunoPage.jsx'
+import AboutPage from './pages/AboutPage.jsx'
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
       { path: '/', element: <App /> },
       { path: '/works', element: <WorksPage /> },
       { path: '/works/suno', element: <SunoPage /> },
+      { path: '/about', element: <AboutPage /> },
     ],
   },
 ])

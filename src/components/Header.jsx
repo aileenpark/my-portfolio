@@ -44,7 +44,7 @@ export default function Header() {
                     <a href="/works" className="nav-link" data-name="nav/works" data-node-id="16:110">
                         <span className="nav-text" data-node-id="16:111">Works</span>
                     </a>
-                    <a href="#about" className="nav-link" data-name="nav/about" data-node-id="16:112">
+                    <a href="/about" className="nav-link" data-name="nav/about" data-node-id="16:112">
                         <span className="nav-text" data-node-id="16:113">About</span>
                     </a>
                     <a
@@ -89,7 +89,7 @@ export default function Header() {
             <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
                 <nav className="mobile-nav">
                     <a href="/works" onClick={() => setIsMenuOpen(false)}>Works</a>
-                    <a href="#about" onClick={() => setIsMenuOpen(false)}>About</a>
+                    <a href="/about" onClick={() => setIsMenuOpen(false)}>About</a>
                     <a
                         href="/resume.pdf"
                         target="_blank"
