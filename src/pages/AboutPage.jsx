@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useState } from "react";
 import Header from "../components/Header";
 
 const C = {
@@ -8,6 +8,7 @@ const C = {
   textMuted: "var(--color-text-muted)",
   textSubtle: "var(--color-text-subtle)",
   textInverse: "var(--color-text-inverse)",
+  purple500: "#646CFF",
 };
 
 const F = {
@@ -70,6 +71,7 @@ function useViewport() {
   return {
     isMobile: width <= 768,
     isTablet: width > 768 && width <= 1280,
+    isDesktop: width > 1280,
   };
 }
 
@@ -90,14 +92,21 @@ function CanvasSlot({ name }) {
   );
 }
 
-function ImageFrame({ src, slot, aspectRatio, objectPosition = "center" }) {
+function ImageFrame({
+  src,
+  slot,
+  aspectRatio,
+  frameHeight,
+  objectPosition = "center",
+}) {
   return (
     <div
       data-image-hook={slot}
       style={{
         position: "relative",
         width: "100%",
-        aspectRatio,
+        height: frameHeight,
+        aspectRatio: frameHeight ? undefined : aspectRatio,
         overflow: "hidden",
         background: C.surface,
       }}
@@ -123,6 +132,7 @@ function ImageCard({
   caption,
   slot,
   aspectRatio,
+  frameHeight,
   objectPosition,
   flex = 1,
 }) {
@@ -141,6 +151,7 @@ function ImageCard({
         src={src}
         slot={slot}
         aspectRatio={aspectRatio}
+        frameHeight={frameHeight}
         objectPosition={objectPosition}
       />
       <figcaption
@@ -175,7 +186,7 @@ function SectionLabel({ children, isMobile }) {
         lineHeight: 1.3,
         letterSpacing: isMobile ? "0.72px" : "0.8px",
         textTransform: "uppercase",
-        color: C.textMuted,
+        color: C.purple500,
       }}
     >
       {children}
@@ -201,6 +212,15 @@ function BodyCopy({ children, isMobile }) {
       {children}
     </div>
   );
+}
+
+function FigmaLines({ lines }) {
+  return lines.map((line, index) => (
+    <Fragment key={`${index}-${line}`}>
+      {line}
+      {index < lines.length - 1 && <br />}
+    </Fragment>
+  ));
 }
 
 function AboutSection({ label, children, isMobile }) {
@@ -383,8 +403,9 @@ function Footer({ isMobile }) {
 
 export default function AboutPage() {
   useScrollable();
-  const { isMobile, isTablet } = useViewport();
+  const { isMobile, isTablet, isDesktop } = useViewport();
   const pairAspect = isMobile ? "4 / 3" : undefined;
+  const desktopPairHeight = isDesktop ? "390px" : undefined;
 
   return (
     <div style={{ minHeight: "100vh", background: C.surface, color: C.text }}>
@@ -491,10 +512,23 @@ export default function AboutPage() {
           <AboutSection label="Background" isMobile={isMobile}>
             <BodyCopy isMobile={isMobile}>
               <p style={{ margin: 0 }}>
-                I took the long way here. At 12, I taught myself Photoshop to
-                make my own fonts and banners. Then I studied computer science
-                and worked in product planning. Ten years later, I came back to
-                design: where I started.
+                <FigmaLines
+                  lines={
+                    isMobile
+                      ? [
+                          "I took the long way here. At 12, I taught myself Photoshop",
+                          "to make my own fonts and banners. Then I studied",
+                          "computer science and worked in product planning.",
+                          "Ten years later, I came back to design: where I started.",
+                        ]
+                      : [
+                          "I took the long way here. At 12, I taught myself Photoshop",
+                          "to make my own fonts and banners. Then I studied computer science",
+                          "and worked in product planning. Ten years later, I came back to design:",
+                          "where I started.",
+                        ]
+                  }
+                />
               </p>
             </BodyCopy>
             <ImageCard
@@ -519,6 +553,7 @@ export default function AboutPage() {
                 caption="Team sync"
                 slot="team-sync"
                 aspectRatio={pairAspect || "4 / 3"}
+                frameHeight={desktopPairHeight}
                 flex={isMobile || isTablet ? 1 : 1.78}
               />
               <ImageCard
@@ -536,22 +571,48 @@ export default function AboutPage() {
                 }
                 slot="at-work"
                 aspectRatio={pairAspect || "3 / 4"}
+                frameHeight={desktopPairHeight}
                 objectPosition="center 24%"
                 flex={1}
               />
             </div>
             <BodyCopy isMobile={isMobile}>
               <p style={{ margin: "0 0 14px" }}>
-                I notice small frictions fast. A flaky form, a missing back
-                button, a screen that feels one pixel off. It stays in my head.
-                I turn that into smoother flows, better structure, and details
-                that feel right.
+                <FigmaLines
+                  lines={
+                    isMobile
+                      ? [
+                          "I notice small frictions fast. A flaky form,",
+                          "a missing back button, a screen that feels one pixel off.",
+                          "It stays in my head. I turn that into smoother flows,",
+                          "better structure, and details that feel right.",
+                        ]
+                      : [
+                          "I notice small frictions fast. A flaky form, a missing back button,",
+                          "a screen that feels one pixel off. It stays in my head.",
+                          "I turn that into smoother flows, better structure, and details that feel right.",
+                        ]
+                  }
+                />
               </p>
               <p style={{ margin: 0 }}>
-                I like making things people can see, touch, and use. I pick up
-                new tools early, but I only keep the ones that pass one test:
-                does it help me think faster, build better, or ship what I
-                designed?
+                <FigmaLines
+                  lines={
+                    isMobile
+                      ? [
+                          "I like making things people can see, touch, and use.",
+                          "I pick up new tools early, but I only keep the ones",
+                          "that pass one test:",
+                          "does it help me think faster, build better,",
+                          "or ship what I designed?",
+                        ]
+                      : [
+                          "I like making things people can see, touch, and use.",
+                          "I pick up new tools early, but I only keep the ones that pass one test:",
+                          "does it help me think faster, build better, or ship what I designed?",
+                        ]
+                  }
+                />
               </p>
             </BodyCopy>
           </AboutSection>
@@ -569,6 +630,7 @@ export default function AboutPage() {
                 caption="Lando wins in Singapore"
                 slot="singapore-gp"
                 aspectRatio={pairAspect || "3 / 4"}
+                frameHeight={desktopPairHeight}
                 objectPosition="center 38%"
                 flex={isMobile || isTablet ? 1 : 1}
               />
@@ -577,23 +639,51 @@ export default function AboutPage() {
                 caption="Osaka moment"
                 slot="osaka"
                 aspectRatio={pairAspect || "4 / 3"}
+                frameHeight={desktopPairHeight}
                 objectPosition="center"
                 flex={isMobile || isTablet ? 1 : 1.86}
               />
             </div>
             <BodyCopy isMobile={isMobile}>
               <p style={{ margin: "0 0 14px" }}>
-                When something grabs me, I move fast. I book the flight, host
-                the event, design the merch. There’s almost no gap between
-                liking something and doing something about it. Sports tend to
-                stick with me the longest. I’ve followed McLaren in F1 since
-                2023, because they keep surprising me every season, for better
-                or worse.
+                <FigmaLines
+                  lines={
+                    isMobile
+                      ? [
+                          "When something grabs me, I move fast. I book the flight, host the event, design the merch.",
+                          "There’s almost no gap between liking something",
+                          "and doing something about it.",
+                          "Sports tend to stick with me the longest.",
+                          "I’ve followed McLaren in F1 since 2023,",
+                          "because they keep surprising me every season,",
+                          "for better or worse.",
+                        ]
+                      : [
+                          "When something grabs me, I move fast. I book the flight, host the event,",
+                          "design the merch. There’s almost no gap between liking something",
+                          "and doing something about it. Sports tend to stick with me the longest.",
+                          "I’ve followed McLaren in F1 since 2023, because they keep surprising me",
+                          "every season, for better or worse.",
+                        ]
+                  }
+                />
               </p>
               <p style={{ margin: 0 }}>
-                The eye that can’t ignore a messy interface is the same one that
-                sorts my bag into little pouches. That instinct shows up as UX
-                at work and as a neatly organized bag at home.
+                <FigmaLines
+                  lines={
+                    isMobile
+                      ? [
+                          "The eye that can’t ignore a messy interface is the same one that sorts my bag into little pouches.",
+                          "That instinct shows up as UX at work",
+                          "and as a neatly organized bag at home.",
+                        ]
+                      : [
+                          "The eye that can’t ignore a messy interface is the same one that sorts",
+                          "my bag into little pouches. That instinct shows up as UX",
+                          "at work and as a neatly organized bag at home.",
+                        ]
+                  }
+                />
               </p>
             </BodyCopy>
           </AboutSection>
