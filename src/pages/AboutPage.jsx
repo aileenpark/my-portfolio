@@ -1,4 +1,11 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "../components/Header";
@@ -56,6 +63,7 @@ const DRAWLINE_BRUSH_RADIUS = 16;
 const DRAWLINE_HOLD_MS = 600;
 const DRAWLINE_FADE_MS = 500;
 const DRAWLINE_INTERPOLATION_STEP = 4;
+const DRAWLINE_HINT_DISMISS_MS = 200;
 
 const SOCIAL_LINKS = {
   instagram: "https://www.instagram.com/nayuningg/",
@@ -450,7 +458,76 @@ function GreetingsMosaicReveal({ titleRef }) {
   );
 }
 
-function CursorMosaicDrawline({ name }) {
+function DrawlineHintBadge({ isDismissed }) {
+  const badgeRef = useRef(null);
+  const isEnabled = useMediaQuery(DRAWLINE_MEDIA_QUERY);
+  const [isMounted, setIsMounted] = useState(() => !isDismissed);
+
+  useLayoutEffect(() => {
+    const badge = badgeRef.current;
+    if (!badge || !isEnabled || !isMounted || isDismissed) return undefined;
+
+    const ctx = gsap.context(() => {
+      gsap
+        .timeline({ repeat: -1, repeatDelay: 1.8 })
+        .to(badge, { y: -6, duration: 0.18, ease: "power2.out" })
+        .to(badge, { y: 0, duration: 0.16, ease: "power2.in" })
+        .to(badge, { y: -3, duration: 0.12, ease: "power2.out" })
+        .to(badge, { y: 0, duration: 0.14, ease: "power2.in" });
+    }, badge);
+
+    return () => ctx.revert();
+  }, [isDismissed, isEnabled, isMounted]);
+
+  useEffect(() => {
+    if (!isEnabled || !isDismissed || !isMounted) return undefined;
+
+    const dismissTimer = window.setTimeout(
+      () => setIsMounted(false),
+      DRAWLINE_HINT_DISMISS_MS,
+    );
+
+    return () => window.clearTimeout(dismissTimer);
+  }, [isDismissed, isEnabled, isMounted]);
+
+  if (!isEnabled || !isMounted) return null;
+
+  return (
+    <div
+      ref={badgeRef}
+      data-drawline-hint
+      style={{
+        position: "absolute",
+        top: "var(--space-4)",
+        right: "var(--space-4)",
+        zIndex: 2,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "220px",
+        height: "32px",
+        padding: "6px 10px",
+        boxSizing: "border-box",
+        borderRadius: "var(--radius-sm)",
+        background: C.surfaceInverted,
+        color: C.textInverse,
+        fontFamily: F.label,
+        fontSize: "var(--font-size-caption-md)",
+        fontWeight: 500,
+        lineHeight: 1.4,
+        letterSpacing: "0.07px",
+        whiteSpace: "nowrap",
+        pointerEvents: "none",
+        opacity: isDismissed ? 0 : 1,
+        transition: "opacity var(--motion-fast)",
+      }}
+    >
+      MOVE YOUR CURSOR TO DRAW
+    </div>
+  );
+}
+
+function CursorMosaicDrawline({ name, onDrawStart }) {
   const canvasRef = useRef(null);
   const isEnabled = useMediaQuery(DRAWLINE_MEDIA_QUERY);
   const [hasFailed, setHasFailed] = useState(false);
@@ -477,7 +554,13 @@ function CursorMosaicDrawline({ name }) {
     let colorIndex = 0;
     let canvasWidth = 0;
     let canvasHeight = 0;
+    let hasStartedDrawing = false;
     const blocks = new Map();
+    const previousCursor = frame.style.cursor;
+
+    const restoreCursor = () => {
+      frame.style.cursor = previousCursor;
+    };
 
     const stopScheduledWork = () => {
       cancelAnimationFrame(animationFrame);
@@ -631,6 +714,11 @@ function CursorMosaicDrawline({ name }) {
       }
 
       const createdAt = performance.now();
+      if (!hasStartedDrawing) {
+        hasStartedDrawing = true;
+        onDrawStart?.();
+      }
+
       if (!previousPoint) {
         stampBlocks(currentPoint.x, currentPoint.y, createdAt);
       } else {
@@ -670,6 +758,7 @@ function CursorMosaicDrawline({ name }) {
     };
 
     try {
+      frame.style.cursor = "crosshair";
       context = canvas.getContext("2d");
       if (!context || !syncCanvas()) throw new Error("Canvas unavailable");
 
@@ -701,6 +790,7 @@ function CursorMosaicDrawline({ name }) {
       stopScheduledWork();
       intersectionObserver?.disconnect();
       resizeObserver?.disconnect();
+      restoreCursor();
       setHasFailed(true);
     }
 
@@ -714,8 +804,9 @@ function CursorMosaicDrawline({ name }) {
       resizeObserver?.disconnect();
       intersectionObserver?.disconnect();
       blocks.clear();
+      restoreCursor();
     };
-  }, [hasFailed, isEnabled]);
+  }, [hasFailed, isEnabled, onDrawStart]);
 
   useEffect(() => {
     if (!isEnabled) setHasFailed(false);
@@ -732,6 +823,9 @@ function ImageFrame({
   aspectRatio,
   frameHeight,
   objectPosition = "center",
+  showDrawHint = false,
+  isDrawHintDismissed = false,
+  onDrawStart,
 }) {
   return (
     <div
@@ -756,7 +850,13 @@ function ImageFrame({
           display: "block",
         }}
       />
-      <CursorMosaicDrawline name={`${slot}-drawline`} />
+      <CursorMosaicDrawline
+        name={`${slot}-drawline`}
+        onDrawStart={onDrawStart}
+      />
+      {showDrawHint ? (
+        <DrawlineHintBadge isDismissed={isDrawHintDismissed} />
+      ) : null}
     </div>
   );
 }
@@ -769,6 +869,9 @@ function ImageCard({
   frameHeight,
   objectPosition,
   flex = 1,
+  showDrawHint,
+  isDrawHintDismissed,
+  onDrawStart,
 }) {
   return (
     <figure
@@ -787,6 +890,9 @@ function ImageCard({
         aspectRatio={aspectRatio}
         frameHeight={frameHeight}
         objectPosition={objectPosition}
+        showDrawHint={showDrawHint}
+        isDrawHintDismissed={isDrawHintDismissed}
+        onDrawStart={onDrawStart}
       />
       <figcaption
         style={{
@@ -1039,12 +1145,16 @@ function Footer({ isMobile }) {
 export default function AboutPage() {
   const pageRef = useRef(null);
   const greetingTitleRef = useRef(null);
+  const [isDrawHintDismissed, setIsDrawHintDismissed] = useState(false);
 
   useScrollable();
   useAboutSectionReveal(pageRef);
   const { isMobile, isTablet, isDesktop } = useViewport();
   const pairAspect = isMobile ? "4 / 3" : undefined;
   const desktopPairHeight = isDesktop ? "390px" : undefined;
+  const handleDrawStart = useCallback(() => {
+    setIsDrawHintDismissed(true);
+  }, []);
 
   return (
     <div
@@ -1180,6 +1290,9 @@ export default function AboutPage() {
               slot="background"
               aspectRatio="16 / 9"
               objectPosition="center 38%"
+              showDrawHint
+              isDrawHintDismissed={isDrawHintDismissed}
+              onDrawStart={handleDrawStart}
             />
           </AboutSection>
 
@@ -1198,6 +1311,7 @@ export default function AboutPage() {
                 aspectRatio={pairAspect || "4 / 3"}
                 frameHeight={desktopPairHeight}
                 flex={isMobile || isTablet ? 1 : 1.78}
+                onDrawStart={handleDrawStart}
               />
               <ImageCard
                 src={ASSETS.atWork}
@@ -1217,6 +1331,7 @@ export default function AboutPage() {
                 frameHeight={desktopPairHeight}
                 objectPosition="center 24%"
                 flex={1}
+                onDrawStart={handleDrawStart}
               />
             </div>
             <BodyCopy isMobile={isMobile}>
@@ -1276,6 +1391,7 @@ export default function AboutPage() {
                 frameHeight={desktopPairHeight}
                 objectPosition="center 38%"
                 flex={isMobile || isTablet ? 1 : 1}
+                onDrawStart={handleDrawStart}
               />
               <ImageCard
                 src={ASSETS.osaka}
@@ -1285,6 +1401,7 @@ export default function AboutPage() {
                 frameHeight={desktopPairHeight}
                 objectPosition="center"
                 flex={isMobile || isTablet ? 1 : 1.86}
+                onDrawStart={handleDrawStart}
               />
             </div>
             <BodyCopy isMobile={isMobile}>
