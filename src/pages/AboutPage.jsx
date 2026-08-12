@@ -48,6 +48,14 @@ const GREETING_PIXEL_SIZE = {
   start: 20,
   end: 2.5,
 };
+const DRAWLINE_MEDIA_QUERY =
+  "(min-width: 1281px) and (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference)";
+const DRAWLINE_PALETTE = ["#a855f7", "#ec4899", "#f9a8d4"];
+const DRAWLINE_BLOCK_SIZE = 8;
+const DRAWLINE_BRUSH_RADIUS = 16;
+const DRAWLINE_HOLD_MS = 600;
+const DRAWLINE_FADE_MS = 500;
+const DRAWLINE_INTERPOLATION_STEP = 4;
 
 const SOCIAL_LINKS = {
   instagram: "https://www.instagram.com/nayuningg/",
@@ -127,7 +135,7 @@ function useViewport() {
   };
 }
 
-function CanvasSlot({ name, canvasRef, opacity }) {
+function CanvasSlot({ name, canvasRef, opacity, zIndex }) {
   return (
     <canvas
       ref={canvasRef}
@@ -141,9 +149,40 @@ function CanvasSlot({ name, canvasRef, opacity }) {
         display: "block",
         pointerEvents: "none",
         opacity,
+        zIndex,
       }}
     />
   );
+}
+
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+
+    try {
+      return window.matchMedia(query).matches;
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    let mediaQuery;
+    const handleChange = () => setMatches(mediaQuery?.matches ?? false);
+
+    try {
+      mediaQuery = window.matchMedia(query);
+      handleChange();
+      mediaQuery.addEventListener("change", handleChange);
+    } catch {
+      const failureTimer = window.setTimeout(() => setMatches(false), 0);
+      return () => window.clearTimeout(failureTimer);
+    }
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [query]);
+
+  return matches;
 }
 
 function getFontSpec(style) {
@@ -411,6 +450,282 @@ function GreetingsMosaicReveal({ titleRef }) {
   );
 }
 
+function CursorMosaicDrawline({ name }) {
+  const canvasRef = useRef(null);
+  const isEnabled = useMediaQuery(DRAWLINE_MEDIA_QUERY);
+  const [hasFailed, setHasFailed] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!isEnabled || hasFailed) return undefined;
+
+    const canvas = canvasRef.current;
+    const frame = canvas?.closest("[data-image-hook]");
+
+    if (!frame || !canvas || !("IntersectionObserver" in window)) {
+      setHasFailed(true);
+      return undefined;
+    }
+
+    let context;
+    let intersectionObserver;
+    let resizeObserver;
+    let animationFrame = 0;
+    let resizeFrame = 0;
+    let wakeTimer = 0;
+    let isVisible = false;
+    let previousPoint = null;
+    let colorIndex = 0;
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    const blocks = new Map();
+
+    const stopScheduledWork = () => {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+      window.clearTimeout(wakeTimer);
+      wakeTimer = 0;
+    };
+
+    const syncCanvas = () => {
+      const rect = frame.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return false;
+
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvasWidth = rect.width;
+      canvasHeight = rect.height;
+      canvas.width = Math.max(1, Math.round(canvasWidth * dpr));
+      canvas.height = Math.max(1, Math.round(canvasHeight * dpr));
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.imageSmoothingEnabled = false;
+      blocks.clear();
+      previousPoint = null;
+      stopScheduledWork();
+      return true;
+    };
+
+    const drawFrame = (now) => {
+      animationFrame = 0;
+      if (!isVisible) return;
+
+      context.clearRect(0, 0, canvasWidth, canvasHeight);
+      let isFading = false;
+      let nextFadeAt = Number.POSITIVE_INFINITY;
+
+      blocks.forEach((block, key) => {
+        const age = now - block.createdAt;
+        if (age >= DRAWLINE_HOLD_MS + DRAWLINE_FADE_MS) {
+          blocks.delete(key);
+          return;
+        }
+
+        const opacity =
+          age <= DRAWLINE_HOLD_MS
+            ? 1
+            : 1 - (age - DRAWLINE_HOLD_MS) / DRAWLINE_FADE_MS;
+
+        if (opacity < 1) {
+          isFading = true;
+        } else {
+          nextFadeAt = Math.min(
+            nextFadeAt,
+            block.createdAt + DRAWLINE_HOLD_MS,
+          );
+        }
+
+        context.globalAlpha = Math.max(0, opacity);
+        context.fillStyle = block.color;
+        context.fillRect(
+          block.column * DRAWLINE_BLOCK_SIZE,
+          block.row * DRAWLINE_BLOCK_SIZE,
+          DRAWLINE_BLOCK_SIZE,
+          DRAWLINE_BLOCK_SIZE,
+        );
+      });
+
+      context.globalAlpha = 1;
+
+      if (isFading) {
+        animationFrame = requestAnimationFrame(drawFrame);
+      } else if (blocks.size > 0 && Number.isFinite(nextFadeAt)) {
+        wakeTimer = window.setTimeout(
+          () => {
+            wakeTimer = 0;
+            animationFrame = requestAnimationFrame(drawFrame);
+          },
+          Math.max(0, nextFadeAt - performance.now()),
+        );
+      }
+    };
+
+    const requestDraw = () => {
+      if (!isVisible) return;
+      window.clearTimeout(wakeTimer);
+      wakeTimer = 0;
+      if (!animationFrame) animationFrame = requestAnimationFrame(drawFrame);
+    };
+
+    const stampBlocks = (x, y, createdAt) => {
+      const minColumn = Math.floor(
+        (x - DRAWLINE_BRUSH_RADIUS) / DRAWLINE_BLOCK_SIZE,
+      );
+      const maxColumn = Math.floor(
+        (x + DRAWLINE_BRUSH_RADIUS) / DRAWLINE_BLOCK_SIZE,
+      );
+      const minRow = Math.floor(
+        (y - DRAWLINE_BRUSH_RADIUS) / DRAWLINE_BLOCK_SIZE,
+      );
+      const maxRow = Math.floor(
+        (y + DRAWLINE_BRUSH_RADIUS) / DRAWLINE_BLOCK_SIZE,
+      );
+
+      for (let row = minRow; row <= maxRow; row += 1) {
+        for (let column = minColumn; column <= maxColumn; column += 1) {
+          const blockX = column * DRAWLINE_BLOCK_SIZE;
+          const blockY = row * DRAWLINE_BLOCK_SIZE;
+          const centerX = blockX + DRAWLINE_BLOCK_SIZE / 2;
+          const centerY = blockY + DRAWLINE_BLOCK_SIZE / 2;
+
+          if (
+            blockX >= canvasWidth ||
+            blockY >= canvasHeight ||
+            blockX + DRAWLINE_BLOCK_SIZE <= 0 ||
+            blockY + DRAWLINE_BLOCK_SIZE <= 0 ||
+            Math.hypot(centerX - x, centerY - y) > DRAWLINE_BRUSH_RADIUS
+          ) {
+            continue;
+          }
+
+          const key = `${column}:${row}`;
+          blocks.set(key, {
+            column,
+            row,
+            color: DRAWLINE_PALETTE[colorIndex % DRAWLINE_PALETTE.length],
+            createdAt,
+          });
+          colorIndex += 1;
+        }
+      }
+    };
+
+    const handlePointerMove = (event) => {
+      if (event.pointerType && event.pointerType !== "mouse") {
+        return;
+      }
+
+      isVisible = true;
+
+      const rect = frame.getBoundingClientRect();
+      const currentPoint = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+
+      if (
+        currentPoint.x < 0 ||
+        currentPoint.x > rect.width ||
+        currentPoint.y < 0 ||
+        currentPoint.y > rect.height
+      ) {
+        previousPoint = null;
+        return;
+      }
+
+      const createdAt = performance.now();
+      if (!previousPoint) {
+        stampBlocks(currentPoint.x, currentPoint.y, createdAt);
+      } else {
+        const distance = Math.hypot(
+          currentPoint.x - previousPoint.x,
+          currentPoint.y - previousPoint.y,
+        );
+        const steps = Math.max(
+          1,
+          Math.ceil(distance / DRAWLINE_INTERPOLATION_STEP),
+        );
+
+        for (let step = 1; step <= steps; step += 1) {
+          const progress = step / steps;
+          stampBlocks(
+            previousPoint.x + (currentPoint.x - previousPoint.x) * progress,
+            previousPoint.y + (currentPoint.y - previousPoint.y) * progress,
+            createdAt,
+          );
+        }
+      }
+
+      previousPoint = currentPoint;
+      requestDraw();
+    };
+
+    const handlePointerLeave = () => {
+      previousPoint = null;
+    };
+
+    const handleResize = () => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = 0;
+        if (!syncCanvas()) setHasFailed(true);
+      });
+    };
+
+    try {
+      context = canvas.getContext("2d");
+      if (!context || !syncCanvas()) throw new Error("Canvas unavailable");
+
+      intersectionObserver = new IntersectionObserver(
+        ([entry]) => {
+          isVisible = entry.isIntersecting;
+          previousPoint = null;
+
+          if (isVisible) {
+            requestDraw();
+          } else {
+            stopScheduledWork();
+          }
+        },
+        { threshold: 0.01 },
+      );
+      intersectionObserver.observe(frame);
+
+      if ("ResizeObserver" in window) {
+        resizeObserver = new ResizeObserver(handleResize);
+        resizeObserver.observe(frame);
+      }
+
+      frame.addEventListener("pointermove", handlePointerMove);
+      frame.addEventListener("pointerleave", handlePointerLeave);
+      frame.addEventListener("pointercancel", handlePointerLeave);
+      window.addEventListener("resize", handleResize);
+    } catch {
+      stopScheduledWork();
+      intersectionObserver?.disconnect();
+      resizeObserver?.disconnect();
+      setHasFailed(true);
+    }
+
+    return () => {
+      stopScheduledWork();
+      cancelAnimationFrame(resizeFrame);
+      frame.removeEventListener("pointermove", handlePointerMove);
+      frame.removeEventListener("pointerleave", handlePointerLeave);
+      frame.removeEventListener("pointercancel", handlePointerLeave);
+      window.removeEventListener("resize", handleResize);
+      resizeObserver?.disconnect();
+      intersectionObserver?.disconnect();
+      blocks.clear();
+    };
+  }, [hasFailed, isEnabled]);
+
+  useEffect(() => {
+    if (!isEnabled) setHasFailed(false);
+  }, [isEnabled]);
+
+  if (!isEnabled || hasFailed) return null;
+
+  return <CanvasSlot name={name} canvasRef={canvasRef} zIndex={1} />;
+}
+
 function ImageFrame({
   src,
   slot,
@@ -441,7 +756,7 @@ function ImageFrame({
           display: "block",
         }}
       />
-      <CanvasSlot name={`${slot}-drawline`} />
+      <CursorMosaicDrawline name={`${slot}-drawline`} />
     </div>
   );
 }
