@@ -1,5 +1,10 @@
-import { Fragment, useEffect, useLayoutEffect, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "../components/Header";
+import { MOTION } from "../motion";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const C = {
   surface: "var(--color-surface)",
@@ -55,6 +60,46 @@ function useScrollable() {
       document.body.style.overflow = "";
     };
   }, []);
+}
+
+function useAboutSectionReveal(containerRef) {
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+
+    if (
+      !container ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return undefined;
+    }
+
+    const ctx = gsap.context(() => {
+      const sections = gsap.utils.toArray("[data-about-section]");
+
+      sections.forEach((section) => {
+        const content = section.querySelector("[data-about-section-content]");
+        const items = [section.firstElementChild, ...content.children];
+
+        gsap.fromTo(
+          items,
+          { y: 24, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            ...MOTION.base,
+            stagger: 0.06,
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%",
+              once: true,
+            },
+          },
+        );
+      });
+    }, container);
+
+    return () => ctx.revert();
+  }, [containerRef]);
 }
 
 function useViewport() {
@@ -239,6 +284,7 @@ function AboutSection({ label, children, isMobile }) {
     >
       <SectionLabel isMobile={isMobile}>{label}</SectionLabel>
       <div
+        data-about-section-content
         style={{
           display: "flex",
           flexDirection: "column",
@@ -402,13 +448,19 @@ function Footer({ isMobile }) {
 }
 
 export default function AboutPage() {
+  const pageRef = useRef(null);
+
   useScrollable();
+  useAboutSectionReveal(pageRef);
   const { isMobile, isTablet, isDesktop } = useViewport();
   const pairAspect = isMobile ? "4 / 3" : undefined;
   const desktopPairHeight = isDesktop ? "390px" : undefined;
 
   return (
-    <div style={{ minHeight: "100vh", background: C.surface, color: C.text }}>
+    <div
+      ref={pageRef}
+      style={{ minHeight: "100vh", background: C.surface, color: C.text }}
+    >
       <Header />
 
       <main
