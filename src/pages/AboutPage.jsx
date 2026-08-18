@@ -36,10 +36,6 @@ const ASSETS = {
   atWork: "/about/images/at-work.webp",
   singapore: "/about/images/singapore-gp.webp",
   osaka: "/about/images/osaka.webp",
-  footerLogo: "/about/footer-logo.svg",
-  instagram: "/about/instagram.svg",
-  linkedin: "/about/linkedin.svg",
-  mail: "/about/mail.svg",
 };
 
 const KEYWORDS = [
@@ -64,12 +60,6 @@ const DRAWLINE_HOLD_MS = 600;
 const DRAWLINE_FADE_MS = 500;
 const DRAWLINE_INTERPOLATION_STEP = 4;
 const DRAWLINE_HINT_DISMISS_MS = 200;
-
-const SOCIAL_LINKS = {
-  instagram: "https://www.instagram.com/nayuningg/",
-  linkedin: "https://www.linkedin.com/in/nayuningg",
-  email: "mailto:nypark115@gmail.com",
-};
 
 function useScrollable() {
   useLayoutEffect(() => {
@@ -994,154 +984,6 @@ function AboutSection({ label, children, isMobile }) {
   );
 }
 
-function SocialChip({ icon, children, href }) {
-  const commonStyle = {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "6px",
-    padding: "6px var(--space-4)",
-    border: `1px solid ${C.textInverse}`,
-    borderRadius: "var(--radius-md)",
-    color: C.textInverse,
-    fontFamily: F.label,
-    fontSize: "12px",
-    fontWeight: 400,
-    lineHeight: 1,
-    letterSpacing: "0.12px",
-    textTransform: "uppercase",
-    textDecoration: "none",
-    boxSizing: "border-box",
-    whiteSpace: "nowrap",
-  };
-
-  const content = (
-    <>
-      <img
-        src={icon}
-        alt=""
-        style={{ width: "20px", height: "20px", display: "block" }}
-      />
-      <span>{children}</span>
-    </>
-  );
-
-  if (href) {
-    return (
-      <a href={href} style={commonStyle}>
-        {content}
-      </a>
-    );
-  }
-
-  return <span style={commonStyle}>{content}</span>;
-}
-
-function Footer({ isMobile }) {
-  return (
-    <footer
-      style={{
-        marginTop: isMobile ? "var(--space-12)" : "var(--space-32)",
-        background: C.surfaceInverted,
-        color: C.textInverse,
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "var(--content-max)",
-          minHeight: isMobile ? "auto" : "300px",
-          margin: "0 auto",
-          padding: isMobile
-            ? "var(--space-8) var(--space-4)"
-            : "var(--space-12) var(--space-6)",
-          boxSizing: "border-box",
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          alignItems: isMobile ? "flex-start" : "center",
-          justifyContent: "space-between",
-          gap: isMobile ? "34px" : "var(--space-12)",
-        }}
-      >
-        <p
-          style={{
-            margin: 0,
-            fontFamily: F.display,
-            fontSize: isMobile ? "var(--font-size-title-lg)" : "48px",
-            fontWeight: 600,
-            lineHeight: 1.4,
-            color: C.textInverse,
-          }}
-        >
-          Got something messy?
-          <br />
-          I’m into it.
-        </p>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: isMobile ? "flex-start" : "flex-end",
-            gap: isMobile ? "var(--space-4)" : "var(--space-8)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-2)",
-            }}
-          >
-            <img
-              src={ASSETS.footerLogo}
-              alt=""
-              style={{
-                width: isMobile ? "18px" : "20px",
-                height: isMobile ? "18px" : "20px",
-              }}
-            />
-            <span
-              style={{
-                fontFamily: F.base,
-                fontSize: isMobile
-                  ? "var(--font-size-title-md)"
-                  : "var(--font-size-title-lg)",
-                fontWeight: 500,
-                lineHeight: 1.4,
-                color: C.textInverse,
-              }}
-            >
-              Nayun Park
-            </span>
-          </div>
-
-          <div
-            aria-label="Social links"
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: isMobile ? "flex-start" : "flex-end",
-              gap: "var(--space-3)",
-            }}
-          >
-            <SocialChip icon={ASSETS.instagram} href={SOCIAL_LINKS.instagram}>
-              Instagram
-            </SocialChip>
-            <SocialChip icon={ASSETS.linkedin} href={SOCIAL_LINKS.linkedin}>
-              LinkedIn
-            </SocialChip>
-            <SocialChip icon={ASSETS.mail} href={SOCIAL_LINKS.email}>
-              e-mail
-            </SocialChip>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
 export default function AboutPage() {
   const pageRef = useRef(null);
   const greetingTitleRef = useRef(null);
@@ -1450,7 +1292,6 @@ export default function AboutPage() {
         </div>
       </main>
 
-      <Footer isMobile={isMobile} />
     </div>
   );
 }
