@@ -49,8 +49,8 @@ const SELECTED_WORKS = [
     year: "2025",
     title: "AI Mixing Experience Redesign",
     description:
-      "Redesigned the recording and mixing experience to simplify the creation flow and introduce real-time preview, leading to a 22% increase in user uploads.",
-    href: null,
+      "Redesigned the recording and mixing experience to simplify the creation flow and introduce real-time preview, leading to a 39% increase in user uploads.",
+    href: "/works/ai-mix-renewal",
   },
   {
     id: "admin-cms",
@@ -64,16 +64,42 @@ const SELECTED_WORKS = [
 ];
 
 const MORE_WORKS = [
-  { id: "ringle", title: "Ringle App Revamp", category: "AI · Education", year: "2025", href: null },
-  { id: "suno", title: "Suno AI App Revamp", category: "AI · Music", year: "2025", href: "/works/suno" },
-  { id: "heymood", title: "HeyMood App Case Study", category: "Healthcare · Teen", year: "2025", href: null },
-  { id: "ecolab", title: "Ecolab Responsive Website Revamp", category: "Web · B2B", year: "2025", href: null },
+  {
+    id: "ringle",
+    title: "Ringle App Revamp",
+    category: "AI · Education",
+    year: "2025",
+    href: null,
+  },
+  {
+    id: "suno",
+    title: "Suno AI App Revamp",
+    category: "AI · Music",
+    year: "2025",
+    href: "/works/suno",
+  },
+  {
+    id: "heymood",
+    title: "HeyMood App Case Study",
+    category: "Healthcare · Teen",
+    year: "2025",
+    href: null,
+  },
+  {
+    id: "ecolab",
+    title: "Ecolab Responsive Website Revamp",
+    category: "Web · B2B",
+    year: "2025",
+    href: null,
+  },
 ];
 
 function SectionHeader({ label }) {
   return (
     <div style={{ display: "flex", gap: "10px", alignItems: "stretch" }}>
-      <div style={{ width: "6px", background: C.textSecondary, flexShrink: 0 }} />
+      <div
+        style={{ width: "6px", background: C.textSecondary, flexShrink: 0 }}
+      />
       <p
         style={{
           fontFamily: F.label,
@@ -181,7 +207,13 @@ function Thumbnail({ style, image, video }) {
 
 function ArrowIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M4 14L14 4M14 4H7M14 4V11"
         stroke={C.textSecondary}
@@ -219,9 +251,13 @@ export default function WorksPage() {
           }}
         >
           {/* Selected Works */}
-          <section style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          <section
+            style={{ display: "flex", flexDirection: "column", gap: "24px" }}
+          >
             <SectionHeader label="Selected Works" />
-            <div style={{ display: "flex", flexDirection: "column", gap: "60px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "60px" }}
+            >
               {SELECTED_WORKS.map((project) => (
                 <div
                   key={project.id}
@@ -243,8 +279,17 @@ export default function WorksPage() {
                       minWidth: 0,
                     }}
                   >
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      <MetaText category={project.category} year={project.year} />
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "8px",
+                      }}
+                    >
+                      <MetaText
+                        category={project.category}
+                        year={project.year}
+                      />
                       <p
                         style={{
                           fontFamily: F.display,
@@ -302,6 +347,11 @@ export default function WorksPage() {
                       height: isMobile ? "auto" : "337px",
                       aspectRatio: isMobile ? "16/9" : undefined,
                     }}
+                    image={
+                      project.id === "ai-mixing"
+                        ? "/aimix-renewal/hero.webp"
+                        : undefined
+                    }
                   />
                 </div>
               ))}
@@ -309,7 +359,9 @@ export default function WorksPage() {
           </section>
 
           {/* More Works */}
-          <section style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          <section
+            style={{ display: "flex", flexDirection: "column", gap: "24px" }}
+          >
             <SectionHeader label="More Works" />
             <div
               style={{
@@ -331,10 +383,22 @@ export default function WorksPage() {
                 >
                   <Thumbnail
                     style={{ width: "100%", aspectRatio: "16/9" }}
-                    image={project.id === "suno" ? "/suno/thumbnail.webp" : undefined}
-                    video={project.id === "suno" ? "/suno/thumbnail-video.mov" : undefined}
+                    image={
+                      project.id === "suno" ? "/suno/thumbnail.webp" : undefined
+                    }
+                    video={
+                      project.id === "suno"
+                        ? "/suno/thumbnail-video.mov"
+                        : undefined
+                    }
                   />
-                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "6px",
+                    }}
+                  >
                     <p
                       style={{
                         fontFamily: F.display,

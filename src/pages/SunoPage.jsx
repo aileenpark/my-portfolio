@@ -1,5 +1,10 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "../components/Header";
+import { MOTION } from "../motion";
+
+gsap.registerPlugin(ScrollTrigger);
 
 function useScrollable() {
   useLayoutEffect(() => {
@@ -12,6 +17,50 @@ function useScrollable() {
       document.body.style.overflow = "";
     };
   }, []);
+}
+
+function useSectionReveal(containerRef) {
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+
+    if (
+      !container ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return undefined;
+    }
+
+    const ctx = gsap.context(() => {
+      const sections = gsap.utils.toArray("[data-suno-section]");
+
+      sections.forEach((section) => {
+        const sectionChildren = Array.from(section.children);
+        const contentGroups = sectionChildren.slice(1);
+        const items =
+          contentGroups.length === 1
+            ? [sectionChildren[0], ...contentGroups[0].children]
+            : sectionChildren;
+
+        gsap.fromTo(
+          items,
+          { y: 24, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            ...MOTION.base,
+            stagger: 0.06,
+            scrollTrigger: {
+              trigger: section,
+              start: "top 85%",
+              once: true,
+            },
+          },
+        );
+      });
+    }, container);
+
+    return () => ctx.revert();
+  }, [containerRef]);
 }
 
 const C = {
@@ -259,12 +308,18 @@ function ImageCard({ src, caption, bordered = false, video = false }) {
 const SIDE_NAV_IDS = SIDE_NAV_ITEMS.map((i) => i.id);
 
 export default function SunoPage() {
+  const pageRef = useRef(null);
+
   useScrollable();
+  useSectionReveal(pageRef);
   const { hPad, isMobile } = useHPad();
   const activeId = useScrollSpy(SIDE_NAV_IDS);
 
   return (
-    <div style={{ background: C.surfaceDefault, minHeight: "100vh" }}>
+    <div
+      ref={pageRef}
+      style={{ background: C.surfaceDefault, minHeight: "100vh" }}
+    >
       <Header />
       <main>
         {/* Project Header */}
@@ -492,6 +547,7 @@ export default function SunoPage() {
             {/* Overview section */}
             <section
               id="overview"
+              data-suno-section
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -569,6 +625,7 @@ export default function SunoPage() {
             {/* Discover section */}
             <section
               id="discover"
+              data-suno-section
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -767,6 +824,7 @@ export default function SunoPage() {
             {/* Define section */}
             <section
               id="define"
+              data-suno-section
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -1143,6 +1201,7 @@ export default function SunoPage() {
             {/* Ideate section */}
             <section
               id="ideate"
+              data-suno-section
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -1484,6 +1543,7 @@ export default function SunoPage() {
             {/* Design System section */}
             <section
               id="design-system"
+              data-suno-section
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -1639,6 +1699,7 @@ export default function SunoPage() {
             {/* Key Solutions section */}
             <section
               id="key-solutions"
+              data-suno-section
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -1743,6 +1804,7 @@ export default function SunoPage() {
             {/* Evaluation section */}
             <section
               id="evaluation"
+              data-suno-section
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -2003,6 +2065,7 @@ export default function SunoPage() {
             {/* Reflection section */}
             <section
               id="reflection"
+              data-suno-section
               style={{
                 display: "flex",
                 flexDirection: "column",

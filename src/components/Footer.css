@@ -1,0 +1,130 @@
+.site-footer {
+  position: relative;
+  z-index: 10;
+  margin-top: var(--space-32);
+  background: var(--color-surface-inverted);
+  color: var(--color-text-inverse);
+}
+
+.site-footer__inner {
+  width: 100%;
+  max-width: var(--content-max);
+  min-height: 300px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-6);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+.site-footer__message {
+  margin: 0;
+  color: var(--color-text-inverse);
+  font-family: var(--font-family-display);
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.site-footer__details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-8);
+}
+
+.site-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.site-footer__logo {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.site-footer__name {
+  color: var(--color-text-inverse);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-title-lg);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.site-footer__socials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.site-footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px var(--space-4);
+  border: 1px solid var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+  color: var(--color-text-inverse);
+  font-family: var(--font-family-label);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.12px;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.site-footer__social-link:hover {
+  color: var(--color-text-inverse);
+}
+
+.site-footer__social-link img {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    margin-top: var(--space-12);
+  }
+
+  .site-footer__inner {
+    min-height: auto;
+    padding: var(--space-8) var(--space-4);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 34px;
+  }
+
+  .site-footer__message {
+    font-size: var(--font-size-title-lg);
+  }
+
+  .site-footer__details {
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .site-footer__logo {
+    width: 18px;
+    height: 18px;
+  }
+
+  .site-footer__name {
+    font-size: var(--font-size-title-md);
+  }
+
+  .site-footer__socials {
+    justify-content: flex-start;
+  }
+}
