@@ -52,8 +52,8 @@ const META_ITEMS = [
   { label: "TIMELINE", lines: ["5 months"] },
   {
     label: "TEAM",
-    lines: ["Nayun Park (PD)", "1 PM", "3 Developers", "1 Visual Designer"],
-    emphasizedLine: "Nayun Park (PD)",
+    lines: ["Nayun Park (Product Manager)", "1 PM", "3 Developers", "1 UI Designer"],
+    emphasizedLine: "Nayun Park (Product Manager)",
   },
   { label: "TOOLS", lines: ["Figma", "Google Analytics"] },
 ];

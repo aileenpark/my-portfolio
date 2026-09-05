@@ -43,7 +43,7 @@ const META_ITEMS = [
   {
     label: "ROLE",
     lines: [
-      "Product Planning",
+      "Product Design",
       "IA",
       "User Flow",
       "Wireframing",
@@ -53,8 +53,8 @@ const META_ITEMS = [
   { label: "TIMELINE", lines: ["2 weeks"] },
   {
     label: "TEAM",
-    lines: ["Nayun Park (PD)", "1 PM", "1 Developer"],
-    emphasizedLine: "Nayun Park (PD)",
+    lines: ["Nayun Park (Product Designer)", "1 PM", "1 Developer"],
+    emphasizedLine: "Nayun Park (Product Designer)",
   },
   { label: "TOOLS", lines: ["Figma", "Figjam"] },
 ];

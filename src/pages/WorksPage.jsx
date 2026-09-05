@@ -47,6 +47,16 @@ const WORKS = [
     image: "/works-thumbnail/ecolab.webp",
     status: "coming-soon",
   },
+  {
+    id: "vibe-review",
+    name: "Vibe Review",
+    summary: "AI Code Review Tool",
+    tags: ["AI", "Web", "Product Design"],
+    image: "/works-thumbnail/vibe-review.webp",
+    imageWidth: 2880,
+    imageHeight: 1620,
+    status: "coming-soon",
+  },
 ];
 
 const STATUS_LABELS = {
@@ -92,8 +102,8 @@ function WorkCard({ project, index }) {
         <img
           src={project.image}
           alt=""
-          width="5760"
-          height="3240"
+          width={project.imageWidth ?? 5760}
+          height={project.imageHeight ?? 3240}
           loading={index === 0 ? "eager" : "lazy"}
           fetchPriority={index === 0 ? "high" : "auto"}
         />
