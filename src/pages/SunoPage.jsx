@@ -102,7 +102,11 @@ const META_ITEMS = [
     lines: ["User Research", "Market Research", "Product Design", "Design System", "Prototyping"],
   },
   { label: "TIMELINE", lines: ["2 months"] },
-  { label: "TEAM", lines: ["Nayun Park (Product Designer)", "1 Designer"] },
+  {
+    label: "TEAM",
+    lines: ["Nayun Park (Product Designer)", "1 Designer"],
+    emphasizedLine: "Nayun Park (Product Designer)",
+  },
   { label: "TOOLS", lines: ["Figma", "Figjam"] },
 ];
 
@@ -376,52 +380,15 @@ export default function SunoPage() {
         </div>
 
         {/* Hero image — full width */}
-        <div style={{ width: "100%", aspectRatio: "16/9", position: "relative", overflow: "hidden" }}>
-          <img
-            src="/suno/mockup-bg.png"
-            alt=""
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              left: "41.302%",
-              top: "15.926%",
-              width: "17.552%",
-              aspectRatio: "337/726",
-            }}
-          >
-            {/* SVG mask clips video to rounded corners, scales with container */}
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                WebkitMaskImage: "url('/suno/screen-mask.svg')",
-                maskImage: "url('/suno/screen-mask.svg')",
-                WebkitMaskSize: "100% 100%",
-                maskSize: "100% 100%",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "0 0",
-                maskPosition: "0 0",
-              }}
-            >
-              <video
-                src="/suno/screen-video.mov"
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            </div>
-            <img
-              src="/suno/system-ui.png"
-              alt=""
-              style={{ position: "absolute", top: "1.58%", left: 0, width: "100%", pointerEvents: "none" }}
-            />
-          </div>
-        </div>
+        <img
+          src="/suno/thumbnail.webp"
+          alt="Suno AI app displayed on a mobile phone mockup"
+          width="5760"
+          height="3240"
+          loading="eager"
+          fetchPriority="high"
+          style={{ width: "100%", height: "auto", display: "block" }}
+        />
 
         {/* Project Meta */}
         <div style={{ padding: `60px ${hPad}` }}>
@@ -453,7 +420,7 @@ export default function SunoPage() {
                       key={i}
                       style={{
                         fontFamily: F.base,
-                        fontWeight: 400,
+                        fontWeight: line === item.emphasizedLine ? 600 : 400,
                         fontSize: "16px",
                         lineHeight: 1.5,
                         color: C.textPrimary,
