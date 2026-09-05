@@ -102,7 +102,9 @@
   .site-footer__inner {
     width: 100%;
     min-height: auto;
-    padding: var(--space-12) clamp(16px, calc(12.214vw - 29.803px), 64px);
+    padding: var(--space-12)
+      clamp(16px, calc(12.214vw - 29.803px), 64px)
+      calc(var(--space-12) + 100px);
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-8);
@@ -144,7 +146,8 @@
 
 @media (max-width: 480px) {
   .site-footer__inner {
-    padding: var(--space-12) var(--space-4);
+    padding: var(--space-12) var(--space-4)
+      calc(var(--space-12) + 100px);
     gap: 40px;
   }
 

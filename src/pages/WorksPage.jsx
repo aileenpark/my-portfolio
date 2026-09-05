@@ -1,8 +1,12 @@
 import { useLayoutEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "../components/Header";
 import MosaicTextReveal from "../components/MosaicTextReveal";
 import "./WorksPage.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const WORKS = [
   {
@@ -78,6 +82,99 @@ function useScrollable() {
   }, []);
 }
 
+function useCardStackReveal(containerRef) {
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+
+    if (
+      !container ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return undefined;
+    }
+
+    const ctx = gsap.context(() => {
+      const cards = gsap.utils.toArray("[data-works-card]", container);
+
+      cards.forEach((card) => {
+        gsap.fromTo(
+          card,
+          { opacity: 0, y: 72, scale: 0.985 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 94%",
+              end: "top 68%",
+              scrub: 0.55,
+            },
+          },
+        );
+      });
+    }, container);
+
+    return () => ctx.revert();
+  }, [containerRef]);
+}
+
+function useStackCompletion(containerRef) {
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const main = container?.querySelector(".works-page__main");
+    const title = container?.querySelector(".works-page__title-shell");
+    const cards = container
+      ? gsap.utils.toArray("[data-works-card]", container)
+      : [];
+    const lastCard = cards.at(-1);
+
+    if (!container || !main || !title || !lastCard) {
+      return undefined;
+    }
+
+    const getStickyTop = () =>
+      Number.parseFloat(
+        window
+          .getComputedStyle(container)
+          .getPropertyValue("--works-card-sticky-top"),
+      ) || 0;
+
+    const syncStackExit = () => {
+      const stickyTop = getStickyTop();
+      const lastCardTop = lastCard.getBoundingClientRect().top;
+      const exitOffset = Math.min(0, lastCardTop - stickyTop);
+
+      container.style.setProperty(
+        "--works-title-exit-y",
+        `${exitOffset}px`,
+      );
+      container.classList.toggle(
+        "is-stack-complete",
+        lastCardTop <= stickyTop + 0.5,
+      );
+    };
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: main,
+        start: "top bottom",
+        end: "bottom top",
+        onUpdate: syncStackExit,
+        onRefresh: syncStackExit,
+        invalidateOnRefresh: true,
+      });
+    }, container);
+
+    return () => {
+      container.classList.remove("is-stack-complete");
+      container.style.removeProperty("--works-title-exit-y");
+      ctx.revert();
+    };
+  }, [containerRef]);
+}
+
 function WorkTags({ tags }) {
   return (
     <div className="works-card__tags" aria-label="Project categories">
@@ -132,22 +229,35 @@ function WorkCard({ project, index }) {
         className="works-card works-card--link"
         to={project.href}
         aria-label={`View ${project.name}: ${project.summary}`}
+        data-works-card
+        style={{ "--works-card-index": index }}
       >
         {content}
       </Link>
     );
   }
 
-  return <article className="works-card">{content}</article>;
+  return (
+    <article
+      className="works-card"
+      data-works-card
+      style={{ "--works-card-index": index }}
+    >
+      {content}
+    </article>
+  );
 }
 
 export default function WorksPage() {
+  const pageRef = useRef(null);
   const titleRef = useRef(null);
 
   useScrollable();
+  useCardStackReveal(pageRef);
+  useStackCompletion(pageRef);
 
   return (
-    <div className="works-page">
+    <div className="works-page" ref={pageRef}>
       <Header />
 
       <main className="works-page__main">
