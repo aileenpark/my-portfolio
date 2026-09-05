@@ -1,6 +1,7 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
+import MosaicTextReveal from "../components/MosaicTextReveal";
 import "./WorksPage.css";
 
 const WORKS = [
@@ -131,6 +132,8 @@ function WorkCard({ project, index }) {
 }
 
 export default function WorksPage() {
+  const titleRef = useRef(null);
+
   useScrollable();
 
   return (
@@ -138,11 +141,15 @@ export default function WorksPage() {
       <Header />
 
       <main className="works-page__main">
-        <h1 className="works-page__title">
-          Selected works<span className="works-page__title-space"> </span>
-          <br className="works-page__title-break" />
-          across digital experiences.
-        </h1>
+        <div className="works-page__title-shell">
+          <h1 ref={titleRef} className="works-page__title">
+            <span data-mosaic-text>Selected works</span>
+            <span className="works-page__title-space"> </span>
+            <br className="works-page__title-break" />
+            <span data-mosaic-text>across digital experiences.</span>
+          </h1>
+          <MosaicTextReveal name="works-title-reveal" titleRef={titleRef} />
+        </div>
 
         <section className="works-grid" aria-label="Selected works">
           {WORKS.map((project, index) => (

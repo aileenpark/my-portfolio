@@ -31,6 +31,7 @@
   --font-family-base: 'Inter', sans-serif;
   --font-family-display: 'Merriweather', serif;
   --font-family-label: 'Space Grotesk', sans-serif;
+  --font-family-mono: 'Space Mono', monospace;
 
   /* Typography — Sizes (Inter base scale) */
   --font-size-headline-lg: 36px;

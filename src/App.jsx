@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
 import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
-import Works from "./components/Works.jsx";
 import LiquidEther from "./components/LiquidEther.jsx";
 import GlassCube from "./components/GlassCube.jsx";
 import WebglFallback from "./components/WebglFallback.jsx";
+import { getDeviceTier, getGlassCubeTier } from "./utils/device.js";
+import "./App.css";
 
 export default function App() {
   const [webglFallback, setWebglFallback] = useState(false);
-  const [isHeroPaused, setIsHeroPaused] = useState(false);
-  const [isMobileOrTablet, setIsMobileOrTablet] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.innerWidth < 1280;
+  const [isHeroPaused] = useState(false);
+  const [deviceTier, setDeviceTier] = useState(() => {
+    if (typeof window === "undefined") return "desktop";
+    return getDeviceTier();
   });
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.innerWidth < 768;
+  const [glassCubeTier, setGlassCubeTier] = useState(() => {
+    if (typeof window === "undefined") return "desktop";
+    return getGlassCubeTier();
   });
+  const isMobileOrTablet = deviceTier !== "desktop";
+  const isMobile = deviceTier === "mobile";
 
   useEffect(() => {
     if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
@@ -25,40 +28,40 @@ export default function App() {
     }
 
     const handleResize = () => {
-      setIsMobileOrTablet(window.innerWidth < 1280);
-      setIsMobile(window.innerWidth < 768);
+      setDeviceTier(getDeviceTier());
+      setGlassCubeTier(getGlassCubeTier());
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    const canvas = document.createElement("canvas");
-    let gl = null;
-    try {
-      gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-    } catch (e) { }
+    const fallbackFrame = requestAnimationFrame(() => {
+      const canvas = document.createElement("canvas");
+      let gl = null;
 
-    if (!gl) setWebglFallback(true);
+      try {
+        gl =
+          canvas.getContext("webgl") ||
+          canvas.getContext("experimental-webgl");
+      } catch {
+        gl = null;
+      }
+
+      if (!gl) setWebglFallback(true);
+    });
 
     window.handleWebGLFallback = () => setWebglFallback(true);
     return () => {
+      cancelAnimationFrame(fallbackFrame);
       delete window.handleWebGLFallback;
     };
   }, []);
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        minHeight: "100vh",
-        background: "#ffffff",
-      }}
-    >
+    <div className="home-page">
       <Header />
       <Hero />
-      <Works />
 
       {/* WebGL layer — fixed so it stays behind the Hero as background */}
       <div
@@ -99,7 +102,9 @@ export default function App() {
           />
         </div>
 
-        {!isMobile && <GlassCube isPaused={isHeroPaused} />}
+        {glassCubeTier !== "mobile" && (
+          <GlassCube deviceTier={glassCubeTier} isPaused={isHeroPaused} />
+        )}
       </div>
 
       {webglFallback && <WebglFallback />}

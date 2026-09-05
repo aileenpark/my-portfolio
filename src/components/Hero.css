@@ -3,7 +3,7 @@
     width: 100%;
     height: 100vh;
     background-color: transparent;
-    overflow: visible !important;
+    overflow: hidden;
     max-width: none !important;
     z-index: 10;
     pointer-events: none;
@@ -22,38 +22,33 @@
     pointer-events: auto;
 }
 
-/* Base style (matches exact Figma specs converted to relative layout rules to prevent overlap) */
+/* Standard desktop — Figma 1440px */
 .hero-copyright {
     position: absolute;
     left: 74px;
-    top: 82.4vh;
-    /* 844 / 1024 proportion */
+    top: 844px;
     margin: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', var(--font-family-base);
     font-weight: 400;
     font-size: 14px;
     line-height: 1.4;
-    color: #121212;
+    color: var(--color-text);
     white-space: nowrap;
     font-variation-settings: 'wdth' 100;
-    transition: all 0.3s ease;
 }
 
 .hero-intro {
     position: absolute;
-    left: 74.375vw;
-    /* 1428 / 1920 proportion */
-    top: 56.666vh;
-    /* 612 / 1080 proportion */
+    left: calc(100% - 492px);
+    top: 612px;
     margin: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', var(--font-family-base);
     font-weight: 400;
     font-size: 14px;
     line-height: 1.4;
-    color: #121212;
+    color: var(--color-text);
     white-space: pre;
     font-variation-settings: 'wdth' 100;
-    transition: all 0.3s ease;
 }
 
 .hero-intro-text {
@@ -63,7 +58,7 @@
 
 .hero-headline {
     position: absolute;
-    top: 69.5vh;
+    top: 724.81px;
     bottom: auto;
     width: 100vw;
     display: flex;
@@ -80,48 +75,55 @@
     overflow: visible !important;
 }
 
-/* --- Responsive Breakpoints --- */
-
-@media (max-width: 1440px) {
-    .hero-intro {
-        left: unset;
-        right: 5vw;
-        /* Fluid scaling to prevent text going left of center */
+/* Wide desktop — Figma 1920px */
+@media (min-width: 1920px) {
+    .hero-headline {
+        top: 712px;
     }
 }
 
+/* Interpolate the authored 1440px and 768px horizontal anchors. */
+@media (min-width: 769px) and (max-width: 1439px) {
+    .hero-intro {
+        left: calc(87.6488vw - 314.142px);
+    }
+}
+
+/* Tablet — Figma 768px */
 @media (max-width: 768px) {
     .hero-copyright {
-        left: 5vw;
-        top: auto;
-        bottom: 8vh;
+        left: 74px;
+        top: 748px;
+        font-size: 13px;
     }
 
     .hero-intro {
-        left: 5vw;
-        right: 5vw;
-        top: 38vh;
-        white-space: normal;
-        max-width: 90vw;
+        left: calc(82.9861vw - 278.333px);
+        top: 631px;
+        font-size: 13px;
     }
 
     .hero-headline {
-        top: 58vh;
+        top: 690px;
     }
 }
 
-@media (max-width: 375px) {
+/* Mobile — Figma 480px */
+@media (max-width: 480px) {
     .hero-copyright {
-        left: 20px;
+        left: 24px;
+        top: 617px;
         font-size: 12px;
     }
 
     .hero-intro {
-        left: 20px;
-        right: auto;
+        left: max(24px, calc(100% - 360px));
+        top: 523px;
         font-size: 12px;
-        white-space: normal;
-        max-width: calc(100vw - 40px);
+    }
+
+    .hero-headline {
+        top: 580px;
     }
 }
 
