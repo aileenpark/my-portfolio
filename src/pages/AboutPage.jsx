@@ -9,7 +9,9 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "../components/Header";
+import MosaicTextReveal from "../components/MosaicTextReveal";
 import { MOTION } from "../motion";
+import "./AboutPage.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,13 +25,6 @@ const C = {
   purple500: "#646CFF",
 };
 
-const F = {
-  base: "var(--font-family-base)",
-  display: "var(--font-family-display)",
-  label: "var(--font-family-label)",
-  greeting: "'Helvetica Neue', var(--font-family-base)",
-};
-
 const ASSETS = {
   background: "/about/images/background.webp",
   teamSync: "/about/images/team-sync.webp",
@@ -40,17 +35,99 @@ const ASSETS = {
 
 const KEYWORDS = [
   "CS major",
-  "3 yrs in Product Planning",
-  "Figma + Code",
-  "Korea",
+  "3 yrs in Product Managing",
+  "Seoul, Korea",
 ];
 
-const GREETING_TEXT = "Hi, I’m Nayun.";
-const GREETING_FONT_TIMEOUT = 2000;
-const GREETING_PIXEL_SIZE = {
-  start: 20,
-  end: 2.5,
+const COPY = {
+  background: {
+    desktop: [
+      "I took the long way here. At 12, I taught myself Photoshop",
+      "to make my own fonts and banners. Then I studied computer science and worked in product planning. Ten years later,",
+      "I came back to design: where I started.",
+    ],
+    tablet: [
+      "I took the long way here. At 12, I taught myself Photoshop to make my own fonts and banners. Then I studied computer science and worked in product planning. Ten years later, I came back to design: where I started.",
+    ],
+    mobile: [
+      "I took the long way here. At 12, I taught myself Photoshop to make my own fonts and banners. Then I studied computer science and worked in product planning. Ten years later, I came back to design: where I started.",
+    ],
+  },
+  howPrimary: {
+    desktop: [
+      "I notice small frictions fast. A flaky form, a missing back button,",
+      "a screen that feels one pixel off. It stays in my head.",
+      "I turn that into smoother flows, better structure,",
+      "and details that feel right.",
+    ],
+    tablet: [
+      "I notice small frictions fast. A flaky form, a missing back button, a screen that feels one pixel off. It stays in my head. I turn that into smoother flows, better structure,",
+      "and details that feel right.",
+    ],
+    mobile: [
+      "I notice small frictions fast. A flaky form, a missing back button, a screen that feels one pixel off.",
+      "It stays in my head. I turn that into smoother flows,",
+      "better structure, and details that feel right.",
+    ],
+  },
+  howSecondary: {
+    desktop: [
+      "I like making things people can see, touch, and use. I pick up new tools early, but I only keep the ones that pass one test:",
+      "does it help me think faster, build better, or ship what I designed?",
+    ],
+    tablet: [
+      "I like making things people can see, touch, and use. I pick up new tools early,",
+      "but I only keep the ones that pass one test:",
+      "does it help me think faster, build better, or ship what I designed?",
+    ],
+    mobile: [
+      "I like making things people can see, touch, and use.",
+      "I pick up new tools early, but I only keep the ones",
+      "that pass one test:",
+      "does it help me think faster, build better,",
+      "or ship what I designed?",
+    ],
+  },
+  offPrimary: {
+    desktop: [
+      "When something grabs me, I move fast. I book the flight, host the event, design the merch. There’s almost no gap between liking something and doing something about it.",
+      "Sports tend to stick with me the longest. I’ve followed McLaren in F1 since 2023, because they keep surprising me every season,",
+      "for better or worse.",
+    ],
+    tablet: [
+      "When something grabs me, I move fast. I book the flight, host the event,",
+      "design the merch. There’s almost no gap between liking something and doing something about it.",
+      "Sports tend to stick with me the longest. I’ve followed McLaren in F1 since 2023, because they keep surprising me every season, for better or worse.",
+    ],
+    mobile: [
+      "When something grabs me, I move fast. I book the flight, host the event, design the merch.",
+      "There’s almost no gap between liking something",
+      "and doing something about it.",
+      "Sports tend to stick with me the longest.",
+      "I’ve followed McLaren in F1 since 2023,",
+      "because they keep surprising me every season,",
+      "for better or worse.",
+    ],
+  },
+  offSecondary: {
+    desktop: [
+      "The eye that can’t ignore a messy interface is the same one that sorts my bag into little pouches. That instinct shows up as UX",
+      "at work and as a neatly organized bag at home.",
+    ],
+    tablet: [
+      "The eye that can’t ignore a messy interface is the same one",
+      "that sorts my bag into little pouches. That instinct shows up as UX at work",
+      "and as a neatly organized bag at home.",
+    ],
+    mobile: [
+      "The eye that can’t ignore a messy interface is the same one that sorts my bag into little pouches.",
+      "That instinct shows up as UX at work",
+      "and as a neatly organized bag at home.",
+    ],
+  },
 };
+
+const GREETING_TEXT = "Hi, I’m Nayun.";
 const DRAWLINE_MEDIA_QUERY =
   "(min-width: 1281px) and (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference)";
 const DRAWLINE_PALETTE = ["#a855f7", "#ec4899", "#f9a8d4"];
@@ -115,24 +192,6 @@ function useAboutSectionReveal(containerRef) {
   }, [containerRef]);
 }
 
-function useViewport() {
-  const [width, setWidth] = useState(() =>
-    typeof window === "undefined" ? 1440 : window.innerWidth,
-  );
-
-  useEffect(() => {
-    const updateWidth = () => setWidth(window.innerWidth);
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
-
-  return {
-    isMobile: width <= 768,
-    isTablet: width > 768 && width <= 1280,
-    isDesktop: width > 1280,
-  };
-}
-
 function CanvasSlot({ name, canvasRef, opacity, zIndex }) {
   return (
     <canvas
@@ -181,271 +240,6 @@ function useMediaQuery(query) {
   }, [query]);
 
   return matches;
-}
-
-function getFontSpec(style) {
-  if (style.font) return style.font;
-
-  return [
-    style.fontStyle,
-    style.fontVariant,
-    style.fontWeight,
-    style.fontStretch,
-    style.fontSize,
-    style.fontFamily,
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
-
-function GreetingsMosaicReveal({ titleRef }) {
-  const canvasRef = useRef(null);
-  const [isMounted, setIsMounted] = useState(() =>
-    typeof window === "undefined"
-      ? false
-      : !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
-
-  useLayoutEffect(() => {
-    if (!isMounted) return undefined;
-
-    const title = titleRef.current;
-    const canvas = canvasRef.current;
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    );
-
-    if (!title || !canvas || reducedMotion.matches) {
-      const unmountFrame = requestAnimationFrame(() => setIsMounted(false));
-      return () => cancelAnimationFrame(unmountFrame);
-    }
-
-    let isActive = true;
-    let fontTimer;
-    let resizeFrame;
-    let resizeObserver;
-    let sourceCanvas;
-    let pixelCanvas;
-    let drawMosaic;
-    const mosaic = { pixelSize: GREETING_PIXEL_SIZE.start };
-    const ctx = gsap.context(() => {}, title.parentElement);
-
-    const finishWithoutReveal = () => {
-      if (!isActive) return;
-      isActive = false;
-      gsap.set(title, { opacity: 1 });
-      gsap.set(canvas, { opacity: 0 });
-      setIsMounted(false);
-    };
-
-    const syncCanvas = () => {
-      const context = canvas.getContext("2d");
-      const sourceContext = sourceCanvas?.getContext("2d");
-      const pixelContext = pixelCanvas?.getContext("2d");
-      const rect = title.getBoundingClientRect();
-
-      if (
-        !context ||
-        !sourceContext ||
-        !pixelContext ||
-        rect.width <= 0 ||
-        rect.height <= 0
-      ) {
-        return false;
-      }
-
-      const style = window.getComputedStyle(title);
-      const width = rect.width;
-      const height = rect.height;
-      const dpr = Math.max(1, window.devicePixelRatio || 1);
-
-      canvas.width = Math.max(1, Math.round(width * dpr));
-      canvas.height = Math.max(1, Math.round(height * dpr));
-      sourceCanvas.width = canvas.width;
-      sourceCanvas.height = canvas.height;
-
-      sourceContext.setTransform(dpr, 0, 0, dpr, 0, 0);
-      sourceContext.clearRect(0, 0, width, height);
-      sourceContext.font = getFontSpec(style);
-      sourceContext.fillStyle = style.color;
-      sourceContext.textAlign = "left";
-      sourceContext.textBaseline = "alphabetic";
-
-      if ("fontKerning" in sourceContext) {
-        sourceContext.fontKerning = style.fontKerning;
-      }
-      if ("letterSpacing" in sourceContext) {
-        sourceContext.letterSpacing = style.letterSpacing;
-      }
-      if ("textRendering" in sourceContext) {
-        sourceContext.textRendering = style.textRendering;
-      }
-
-      const metrics = sourceContext.measureText(GREETING_TEXT);
-      const ascent =
-        metrics.fontBoundingBoxAscent || metrics.actualBoundingBoxAscent;
-      const descent =
-        metrics.fontBoundingBoxDescent || metrics.actualBoundingBoxDescent;
-      const baseline =
-        ascent + descent > 0
-          ? (height - ascent - descent) / 2 + ascent
-          : height / 2;
-
-      sourceContext.fillText(GREETING_TEXT, 0, baseline);
-
-      drawMosaic = () => {
-        const sampleWidth = Math.max(
-          1,
-          Math.ceil(width / mosaic.pixelSize),
-        );
-        const sampleHeight = Math.max(
-          1,
-          Math.ceil(height / mosaic.pixelSize),
-        );
-
-        pixelCanvas.width = sampleWidth;
-        pixelCanvas.height = sampleHeight;
-        pixelContext.imageSmoothingEnabled = true;
-        pixelContext.clearRect(0, 0, sampleWidth, sampleHeight);
-        pixelContext.drawImage(
-          sourceCanvas,
-          0,
-          0,
-          sourceCanvas.width,
-          sourceCanvas.height,
-          0,
-          0,
-          sampleWidth,
-          sampleHeight,
-        );
-
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.imageSmoothingEnabled = false;
-        context.drawImage(
-          pixelCanvas,
-          0,
-          0,
-          sampleWidth,
-          sampleHeight,
-          0,
-          0,
-          canvas.width,
-          canvas.height,
-        );
-      };
-
-      drawMosaic();
-      return true;
-    };
-
-    const handleResize = () => {
-      cancelAnimationFrame(resizeFrame);
-      resizeFrame = requestAnimationFrame(() => {
-        if (!sourceCanvas || !pixelCanvas) return;
-        if (isActive && !syncCanvas()) finishWithoutReveal();
-      });
-    };
-
-    const handleReducedMotion = (event) => {
-      if (event.matches) finishWithoutReveal();
-    };
-
-    const startReveal = async () => {
-      if (!document.fonts?.load || !document.fonts?.check) {
-        finishWithoutReveal();
-        return;
-      }
-
-      const style = window.getComputedStyle(title);
-      const fontSpec = getFontSpec(style);
-      const fontLoaded = await Promise.race([
-        document.fonts
-          .load(fontSpec, GREETING_TEXT)
-          .then(() => true)
-          .catch(() => false),
-        new Promise((resolve) => {
-          fontTimer = window.setTimeout(
-            () => resolve(false),
-            GREETING_FONT_TIMEOUT,
-          );
-        }),
-      ]);
-
-      window.clearTimeout(fontTimer);
-
-      if (
-        !isActive ||
-        !fontLoaded ||
-        reducedMotion.matches ||
-        !document.fonts.check(fontSpec, GREETING_TEXT)
-      ) {
-        finishWithoutReveal();
-        return;
-      }
-
-      sourceCanvas = document.createElement("canvas");
-      pixelCanvas = document.createElement("canvas");
-
-      if (!syncCanvas()) {
-        finishWithoutReveal();
-        return;
-      }
-
-      ctx.add(() => {
-        gsap.set(title, { opacity: 0 });
-        gsap.set(canvas, { opacity: 1 });
-
-        gsap
-          .timeline({
-            onComplete: () => {
-              if (isActive) setIsMounted(false);
-            },
-          })
-          .to(mosaic, {
-            pixelSize: GREETING_PIXEL_SIZE.end,
-            ...MOTION.slow,
-            onUpdate: () => {
-              try {
-                drawMosaic?.();
-              } catch {
-                finishWithoutReveal();
-              }
-            },
-          })
-          .to(title, { opacity: 1, ...MOTION.base })
-          .to(canvas, { opacity: 0, ...MOTION.base }, "<");
-      });
-    };
-
-    window.addEventListener("resize", handleResize);
-    if ("ResizeObserver" in window) {
-      resizeObserver = new ResizeObserver(handleResize);
-      resizeObserver.observe(title);
-    }
-    reducedMotion.addEventListener("change", handleReducedMotion);
-    startReveal().catch(finishWithoutReveal);
-
-    return () => {
-      isActive = false;
-      window.clearTimeout(fontTimer);
-      cancelAnimationFrame(resizeFrame);
-      window.removeEventListener("resize", handleResize);
-      resizeObserver?.disconnect();
-      reducedMotion.removeEventListener("change", handleReducedMotion);
-      ctx.revert();
-    };
-  }, [isMounted, titleRef]);
-
-  if (!isMounted) return null;
-
-  return (
-    <CanvasSlot
-      name="greetings-reveal"
-      canvasRef={canvasRef}
-      opacity={0}
-    />
-  );
 }
 
 function DrawlineHintBadge({ isDismissed }) {
@@ -501,7 +295,7 @@ function DrawlineHintBadge({ isDismissed }) {
         borderRadius: "var(--radius-sm)",
         background: C.surfaceInverted,
         color: C.textInverse,
-        fontFamily: F.label,
+        fontFamily: "var(--font-family-label)",
         fontSize: "var(--font-size-caption-md)",
         fontWeight: 500,
         lineHeight: 1.4,
@@ -810,9 +604,6 @@ function CursorMosaicDrawline({ name, onDrawStart }) {
 function ImageFrame({
   src,
   slot,
-  aspectRatio,
-  frameHeight,
-  objectPosition = "center",
   showDrawHint = false,
   isDrawHintDismissed = false,
   onDrawStart,
@@ -820,26 +611,9 @@ function ImageFrame({
   return (
     <div
       data-image-hook={slot}
-      style={{
-        position: "relative",
-        width: "100%",
-        height: frameHeight,
-        aspectRatio: frameHeight ? undefined : aspectRatio,
-        overflow: "hidden",
-        background: C.surface,
-      }}
+      className={`about-image-frame about-image-frame--${slot}`}
     >
-      <img
-        src={src}
-        alt=""
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          objectPosition,
-          display: "block",
-        }}
-      />
+      <img src={src} alt="" />
       <CursorMosaicDrawline
         name={`${slot}-drawline`}
         onDrawStart={onDrawStart}
@@ -854,94 +628,39 @@ function ImageFrame({
 function ImageCard({
   src,
   caption,
+  mobileCaption,
   slot,
-  aspectRatio,
-  frameHeight,
-  objectPosition,
-  flex = 1,
   showDrawHint,
   isDrawHintDismissed,
   onDrawStart,
 }) {
   return (
-    <figure
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "var(--space-2)",
-        flex,
-        minWidth: 0,
-        margin: 0,
-      }}
-    >
+    <figure className={`about-image-card about-image-card--${slot}`}>
       <ImageFrame
         src={src}
         slot={slot}
-        aspectRatio={aspectRatio}
-        frameHeight={frameHeight}
-        objectPosition={objectPosition}
         showDrawHint={showDrawHint}
         isDrawHintDismissed={isDrawHintDismissed}
         onDrawStart={onDrawStart}
       />
-      <figcaption
-        style={{
-          margin: 0,
-          fontFamily: F.base,
-          fontSize: "var(--font-size-caption-md)",
-          fontStyle: "italic",
-          fontWeight: 400,
-          lineHeight: 1.55,
-          color: C.textSubtle,
-          textAlign: "right",
-        }}
-      >
-        {caption}
+      <figcaption className="about-image-caption">
+        <span className={mobileCaption ? "about-caption-desktop" : undefined}>
+          {caption}
+        </span>
+        {mobileCaption ? (
+          <span className="about-caption-mobile">{mobileCaption}</span>
+        ) : null}
       </figcaption>
     </figure>
   );
 }
 
-function SectionLabel({ children, isMobile }) {
-  return (
-    <h2
-      style={{
-        width: isMobile ? "100%" : "160px",
-        margin: 0,
-        fontFamily: F.label,
-        fontSize: isMobile
-          ? "var(--font-size-title-sm)"
-          : "var(--font-size-title-md)",
-        fontWeight: 700,
-        lineHeight: 1.3,
-        letterSpacing: isMobile ? "0.72px" : "0.8px",
-        textTransform: "uppercase",
-        color: C.purple500,
-      }}
-    >
-      {children}
-    </h2>
-  );
+function SectionLabel({ children }) {
+  return <h2 className="about-section__label">{children}</h2>;
 }
 
-function BodyCopy({ children, isMobile }) {
-  return (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: isMobile ? "none" : "700px",
-        fontFamily: F.base,
-        fontSize: isMobile
-          ? "var(--font-size-body-sm)"
-          : "var(--font-size-body-md)",
-        fontWeight: 400,
-        lineHeight: isMobile ? 1.5 : 1.55,
-        color: C.text,
-      }}
-    >
-      {children}
-    </div>
-  );
+function BodyCopy({ children }) {
+  return <div className="about-body-copy">{children}</div>;
 }
 
 function FigmaLines({ lines }) {
@@ -953,31 +672,30 @@ function FigmaLines({ lines }) {
   ));
 }
 
-function AboutSection({ label, children, isMobile }) {
+function ResponsiveFigmaLines({ desktop, tablet, mobile }) {
+  return (
+    <>
+      <span className="about-copy-lines about-copy-lines--desktop">
+        <FigmaLines lines={desktop} />
+      </span>
+      <span className="about-copy-lines about-copy-lines--tablet">
+        <FigmaLines lines={tablet} />
+      </span>
+      <span className="about-copy-lines about-copy-lines--mobile">
+        <FigmaLines lines={mobile} />
+      </span>
+    </>
+  );
+}
+
+function AboutSection({ label, children }) {
   return (
     <section
       data-about-section={label.toLowerCase().replaceAll(" ", "-")}
-      style={{
-        display: "grid",
-        gridTemplateColumns: isMobile
-          ? "minmax(0, 1fr)"
-          : "160px minmax(0, 800px)",
-        gap: isMobile ? "var(--space-6)" : "40px",
-        alignItems: "start",
-        width: "100%",
-      }}
+      className="about-section"
     >
-      <SectionLabel isMobile={isMobile}>{label}</SectionLabel>
-      <div
-        data-about-section-content
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--space-8)",
-          width: "100%",
-          minWidth: 0,
-        }}
-      >
+      <SectionLabel>{label}</SectionLabel>
+      <div data-about-section-content className="about-section__content">
         {children}
       </div>
     </section>
@@ -991,9 +709,6 @@ export default function AboutPage() {
 
   useScrollable();
   useAboutSectionReveal(pageRef);
-  const { isMobile, isTablet, isDesktop } = useViewport();
-  const pairAspect = isMobile ? "4 / 3" : undefined;
-  const desktopPairHeight = isDesktop ? "390px" : undefined;
   const handleDrawStart = useCallback(() => {
     setIsDrawHintDismissed(true);
   }, []);
@@ -1001,297 +716,121 @@ export default function AboutPage() {
   return (
     <div
       ref={pageRef}
-      style={{ minHeight: "100vh", background: C.surface, color: C.text }}
+      className="about-page"
+      style={{ "--about-accent": C.purple500 }}
     >
       <Header />
 
-      <main
-        style={{
-          width: "100%",
-          maxWidth: "var(--content-max)",
-          margin: "0 auto",
-          padding: `${isMobile ? "92px" : "176px"} ${isMobile ? "var(--space-4)" : "var(--space-6)"} 0`,
-          boxSizing: "border-box",
-        }}
-      >
-        <div style={{ width: "100%", maxWidth: "1000px" }}>
-          <div
-            data-greetings-hook
-            style={{
-              position: "relative",
-              display: "inline-block",
-              maxWidth: "100%",
-            }}
-          >
+      <main className="about-main">
+        <div className="about-intro">
+          <div data-greetings-hook className="about-greeting">
             <h1
               ref={greetingTitleRef}
-              style={{
-                margin: 0,
-                fontFamily: F.greeting,
-                fontSize: isMobile ? "40px" : "56px",
-                fontWeight: 700,
-                lineHeight: isMobile ? 1.1 : 1.2,
-                letterSpacing: isMobile ? "-0.048px" : "-0.0672px",
-                color: C.text,
-                whiteSpace: "nowrap",
-              }}
+              className="about-greeting__title"
             >
               {GREETING_TEXT}
             </h1>
-            <GreetingsMosaicReveal titleRef={greetingTitleRef} />
+            <MosaicTextReveal
+              name="greetings-reveal"
+              titleRef={greetingTitleRef}
+            />
           </div>
 
-          <p
-            style={{
-              margin: `${isMobile ? "var(--space-3)" : "var(--space-4)"} 0 0`,
-              fontFamily: F.base,
-              fontSize: isMobile
-                ? "var(--font-size-body-sm)"
-                : "var(--font-size-body-lg)",
-              fontWeight: 500,
-              lineHeight: 1.5,
-              color: C.textMuted,
-            }}
-          >
+          <p className="about-intro__subtitle">
             A product designer who ships what she designs.
           </p>
 
-          <div
-            aria-label="Profile keywords"
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              gap: "6px",
-              marginTop: isMobile ? "var(--space-3)" : "var(--space-6)",
-            }}
-          >
+          <div aria-label="Profile keywords" className="about-keywords">
             {KEYWORDS.map((keyword) => (
-              <span
-                key={keyword}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minHeight: "32px",
-                  padding: "5px var(--space-4)",
-                  border: `1px solid ${C.textSubtle}`,
-                  borderRadius: "var(--radius-md)",
-                  boxSizing: "border-box",
-                  fontFamily: F.base,
-                  fontSize: isMobile
-                    ? "var(--font-size-caption-md)"
-                    : "var(--font-size-body-sm)",
-                  fontWeight: 500,
-                  lineHeight: isMobile ? 1.4 : 1.5,
-                  color: C.textSubtle,
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <span key={keyword} className="about-keyword">
                 {keyword}
               </span>
             ))}
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: isMobile ? "52px" : "var(--space-20)",
-            width: "100%",
-            maxWidth: "1000px",
-            marginTop: isMobile ? "68px" : "var(--space-20)",
-          }}
-        >
-          <AboutSection label="Background" isMobile={isMobile}>
-            <BodyCopy isMobile={isMobile}>
-              <p style={{ margin: 0 }}>
-                <FigmaLines
-                  lines={
-                    isMobile
-                      ? [
-                          "I took the long way here. At 12, I taught myself Photoshop",
-                          "to make my own fonts and banners. Then I studied",
-                          "computer science and worked in product planning.",
-                          "Ten years later, I came back to design: where I started.",
-                        ]
-                      : [
-                          "I took the long way here. At 12, I taught myself Photoshop",
-                          "to make my own fonts and banners. Then I studied computer science",
-                          "and worked in product planning. Ten years later, I came back to design:",
-                          "where I started.",
-                        ]
-                  }
-                />
+        <div className="about-sections">
+          <AboutSection label="Background">
+            <BodyCopy>
+              <p>
+                <ResponsiveFigmaLines {...COPY.background} />
               </p>
             </BodyCopy>
             <ImageCard
               src={ASSETS.background}
               caption="Working in Figma"
               slot="background"
-              aspectRatio="16 / 9"
-              objectPosition="center 38%"
               showDrawHint
               isDrawHintDismissed={isDrawHintDismissed}
               onDrawStart={handleDrawStart}
             />
           </AboutSection>
 
-          <AboutSection label="How I Work" isMobile={isMobile}>
-            <div
-              style={{
-                display: "flex",
-                gap: "var(--space-4)",
-                alignItems: "flex-start",
-              }}
-            >
+          <AboutSection label="How I Work">
+            <BodyCopy>
+              <p>
+                <ResponsiveFigmaLines {...COPY.howPrimary} />
+              </p>
+              <p>
+                <ResponsiveFigmaLines {...COPY.howSecondary} />
+              </p>
+            </BodyCopy>
+            <div className="about-image-pair about-image-pair--how">
               <ImageCard
                 src={ASSETS.teamSync}
                 caption="Team sync"
                 slot="team-sync"
-                aspectRatio={pairAspect || "4 / 3"}
-                frameHeight={desktopPairHeight}
-                flex={isMobile || isTablet ? 1 : 1.78}
                 onDrawStart={handleDrawStart}
               />
               <ImageCard
                 src={ASSETS.atWork}
-                caption={
-                  isMobile ? (
-                    <>
-                      Just another day
-                      <br />
-                      at work
-                    </>
-                  ) : (
-                    "Just another day at work"
-                  )
+                caption="Just another day at work"
+                mobileCaption={
+                  <>
+                    Just another day
+                    <br />
+                    at work
+                  </>
                 }
                 slot="at-work"
-                aspectRatio={pairAspect || "3 / 4"}
-                frameHeight={desktopPairHeight}
-                objectPosition="center 24%"
-                flex={1}
                 onDrawStart={handleDrawStart}
               />
             </div>
-            <BodyCopy isMobile={isMobile}>
-              <p style={{ margin: "0 0 14px" }}>
-                <FigmaLines
-                  lines={
-                    isMobile
-                      ? [
-                          "I notice small frictions fast. A flaky form,",
-                          "a missing back button, a screen that feels one pixel off.",
-                          "It stays in my head. I turn that into smoother flows,",
-                          "better structure, and details that feel right.",
-                        ]
-                      : [
-                          "I notice small frictions fast. A flaky form, a missing back button,",
-                          "a screen that feels one pixel off. It stays in my head.",
-                          "I turn that into smoother flows, better structure, and details that feel right.",
-                        ]
-                  }
-                />
-              </p>
-              <p style={{ margin: 0 }}>
-                <FigmaLines
-                  lines={
-                    isMobile
-                      ? [
-                          "I like making things people can see, touch, and use.",
-                          "I pick up new tools early, but I only keep the ones",
-                          "that pass one test:",
-                          "does it help me think faster, build better,",
-                          "or ship what I designed?",
-                        ]
-                      : [
-                          "I like making things people can see, touch, and use.",
-                          "I pick up new tools early, but I only keep the ones that pass one test:",
-                          "does it help me think faster, build better, or ship what I designed?",
-                        ]
-                  }
-                />
-              </p>
-            </BodyCopy>
           </AboutSection>
 
-          <AboutSection label="Off the Clock" isMobile={isMobile}>
-            <div
-              style={{
-                display: "flex",
-                gap: "var(--space-4)",
-                alignItems: "flex-start",
-              }}
-            >
+          <AboutSection label="Off the Clock">
+            <BodyCopy>
+              <p>
+                <ResponsiveFigmaLines {...COPY.offPrimary} />
+              </p>
+              <p>
+                <ResponsiveFigmaLines {...COPY.offSecondary} />
+              </p>
+            </BodyCopy>
+            <div className="about-image-pair about-image-pair--off">
               <ImageCard
                 src={ASSETS.singapore}
                 caption="Lando wins in Singapore"
+                mobileCaption={
+                  <>
+                    Lando wins
+                    <br />
+                    in Singapore
+                  </>
+                }
                 slot="singapore-gp"
-                aspectRatio={pairAspect || "3 / 4"}
-                frameHeight={desktopPairHeight}
-                objectPosition="center 38%"
-                flex={isMobile || isTablet ? 1 : 1}
                 onDrawStart={handleDrawStart}
               />
               <ImageCard
                 src={ASSETS.osaka}
                 caption="Osaka moment"
                 slot="osaka"
-                aspectRatio={pairAspect || "4 / 3"}
-                frameHeight={desktopPairHeight}
-                objectPosition="center"
-                flex={isMobile || isTablet ? 1 : 1.86}
                 onDrawStart={handleDrawStart}
               />
             </div>
-            <BodyCopy isMobile={isMobile}>
-              <p style={{ margin: "0 0 14px" }}>
-                <FigmaLines
-                  lines={
-                    isMobile
-                      ? [
-                          "When something grabs me, I move fast. I book the flight, host the event, design the merch.",
-                          "There’s almost no gap between liking something",
-                          "and doing something about it.",
-                          "Sports tend to stick with me the longest.",
-                          "I’ve followed McLaren in F1 since 2023,",
-                          "because they keep surprising me every season,",
-                          "for better or worse.",
-                        ]
-                      : [
-                          "When something grabs me, I move fast. I book the flight, host the event,",
-                          "design the merch. There’s almost no gap between liking something",
-                          "and doing something about it. Sports tend to stick with me the longest.",
-                          "I’ve followed McLaren in F1 since 2023, because they keep surprising me",
-                          "every season, for better or worse.",
-                        ]
-                  }
-                />
-              </p>
-              <p style={{ margin: 0 }}>
-                <FigmaLines
-                  lines={
-                    isMobile
-                      ? [
-                          "The eye that can’t ignore a messy interface is the same one that sorts my bag into little pouches.",
-                          "That instinct shows up as UX at work",
-                          "and as a neatly organized bag at home.",
-                        ]
-                      : [
-                          "The eye that can’t ignore a messy interface is the same one that sorts",
-                          "my bag into little pouches. That instinct shows up as UX",
-                          "at work and as a neatly organized bag at home.",
-                        ]
-                  }
-                />
-              </p>
-            </BodyCopy>
           </AboutSection>
         </div>
       </main>
-
     </div>
   );
 }

@@ -233,6 +233,13 @@
         height: 70px;
     }
 
+    .header-content {
+        width: 100%;
+        max-width: none;
+        padding-inline: clamp(16px, calc(12.214vw - 29.803px), 64px);
+        box-sizing: border-box;
+    }
+
     .header-logo {
         width: 32px;
         height: 32px;
@@ -266,9 +273,13 @@
     }
 }
 
-@media (max-width: 375px) {
+@media (max-width: 480px) {
     .header {
         height: 60px;
+    }
+
+    .header-content {
+        padding-inline: var(--space-4);
     }
 
     .header-logo {

@@ -46,7 +46,7 @@
 
 ### 1-2. Typography
 
-**의도 우선**: Inter = UI / 정보, Merriweather = 표제 / 정체성, Space Grotesk = 레이블 / 분류.
+**의도 우선**: Inter = UI / 정보, Merriweather = 표제 / 정체성, Space Grotesk = 레이블 / 분류, Space Mono = 소셜 메타데이터.
 
 #### Type Scale (Inter — base)
 
@@ -81,6 +81,12 @@
 | `project-meta__label` | 18 | 700 | 0.9px | UPPER |
 | `section-label` | 20 | 700 | 0.8px | UPPER |
 
+#### Metadata (Space Mono)
+
+| 용도 | Size | Weight | Tracking | Case |
+|------|------|--------|----------|------|
+| Footer social link | 12–14 | 400 | 0.12px | UPPER |
+
 ### 1-3. Spacing & Layout (포터블)
 
 **4px base unit + clamp() 기반 — 매체 무관.**
@@ -104,8 +110,9 @@
 ```
 
 **Breakpoints:**
-- `mobile`: `< 768px`
-- `tablet`: `768px – 1280px`
+- `mobile`: `≤ 480px`
+- `small tablet`: `481px – 768px`
+- `tablet`: `769px – 1280px`
 - `desktop`: `> 1280px`
 
 ### 1-4. Motion ⭐

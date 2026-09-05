@@ -1,7 +1,12 @@
-export function getDeviceTier() {
-  const w = window.innerWidth;
-  if (w < 768) return "mobile";
-  if (w < 1280) return "tablet";
+export function getDeviceTier(width = window.innerWidth) {
+  if (width <= 480) return "mobile";
+  if (width <= 1280) return "tablet";
+  return "desktop";
+}
+
+export function getGlassCubeTier(width = window.innerWidth) {
+  if (width <= 480) return "mobile";
+  if (width < 1440) return "tablet";
   return "desktop";
 }
 

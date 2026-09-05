@@ -4,7 +4,7 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { getDeviceTier } from "../utils/device.js";
 
-export default function GlassCube({ isPaused = false }) {
+export default function GlassCube({ deviceTier, isPaused = false }) {
   const mountRef = useRef(null);
   const isPausedRef = useRef(isPaused);
 
@@ -17,7 +17,7 @@ export default function GlassCube({ isPaused = false }) {
     if (!container) return;
     let mounted = true;
 
-    const tier = getDeviceTier();
+    const tier = deviceTier ?? getDeviceTier();
     const isMobile = tier === "mobile";
     const isTablet = tier === "tablet";
     const isLowEnd = isMobile || isTablet;
@@ -29,7 +29,7 @@ export default function GlassCube({ isPaused = false }) {
         alpha: true,
         powerPreference: isLowEnd ? "low-power" : "high-performance",
       });
-    } catch (e) {
+    } catch {
       if (window.handleWebGLFallback) window.handleWebGLFallback();
       return;
     }
@@ -271,9 +271,8 @@ export default function GlassCube({ isPaused = false }) {
 
     const handleResize = () => {
       if (!mounted) return;
-      const screenW = window.innerWidth;
-      const mob = screenW < 768;
-      const tab = screenW >= 768 && screenW < 1280;
+      const mob = isMobile;
+      const tab = isTablet;
       renderer.setPixelRatio(
         mob
           ? Math.min(window.devicePixelRatio, 1.0)
@@ -310,11 +309,12 @@ export default function GlassCube({ isPaused = false }) {
       renderer.domElement.removeEventListener("webglcontextcreationerror", onContextCreationError);
       renderer.domElement.remove();
     };
-  }, []);
+  }, [deviceTier]);
 
   return (
     <div
       ref={mountRef}
+      data-device-tier={deviceTier}
       style={{
         position: "absolute",
         top: "40%",
