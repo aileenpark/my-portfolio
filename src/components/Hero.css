@@ -126,19 +126,3 @@
         top: 580px;
     }
 }
-
-/* --- Dark Mode Optimizations --- */
-@media (prefers-color-scheme: dark) {
-    .hero-wrapper {
-        background-color: #121212;
-    }
-
-    .hero-copyright,
-    .hero-intro {
-        color: #f8f8f8;
-    }
-
-    .headline-img {
-        filter: invert(1);
-    }
-}
