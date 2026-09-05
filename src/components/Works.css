@@ -233,37 +233,3 @@
         font-size: 13px;
     }
 }
-
-/* --- Dark Mode --- */
-@media (prefers-color-scheme: dark) {
-    .works-wrapper {
-        background-color: #1a1325;
-    }
-
-    .works-label,
-    .works-item-title {
-        color: #f8f8f8;
-    }
-
-    .works-count,
-    .works-item-index,
-    .works-item-category,
-    .works-item-year,
-    .works-item-description,
-    .works-item-tag {
-        color: rgba(248, 248, 248, 0.5);
-    }
-
-    .works-item-tag {
-        background: rgba(248, 248, 248, 0.08);
-    }
-
-    .works-header,
-    .works-item {
-        border-bottom-color: rgba(248, 248, 248, 0.1);
-    }
-
-    .works-item-arrow svg path {
-        stroke: #f8f8f8;
-    }
-}
