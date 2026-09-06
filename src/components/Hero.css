@@ -15,6 +15,7 @@
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
     pointer-events: none;
 }
 
@@ -75,6 +76,10 @@
     overflow: visible !important;
 }
 
+.hero-headline--mobile {
+    display: none;
+}
+
 /* Wide desktop — Figma 1920px */
 @media (min-width: 1920px) {
     .hero-headline {
@@ -93,18 +98,19 @@
 @media (max-width: 768px) {
     .hero-copyright {
         left: 74px;
-        top: 748px;
+        top: 732px;
         font-size: 13px;
     }
 
     .hero-intro {
-        left: calc(82.9861vw - 278.333px);
-        top: 631px;
+        right: 20px;
+        left: auto;
+        top: 591px;
         font-size: 13px;
     }
 
     .hero-headline {
-        top: 690px;
+        top: 666px;
     }
 }
 
@@ -112,17 +118,41 @@
 @media (max-width: 480px) {
     .hero-copyright {
         left: 24px;
-        top: 617px;
+        top: 493px;
         font-size: 12px;
     }
 
     .hero-intro {
-        left: max(24px, calc(100% - 360px));
-        top: 523px;
+        right: 24px;
+        left: auto;
+        top: 166px;
         font-size: 12px;
     }
 
-    .hero-headline {
-        top: 580px;
+    .hero-headline--desktop {
+        display: none;
+    }
+
+    .hero-headline--mobile {
+        top: 255px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 14px;
+    }
+
+    .hero-headline-word {
+        display: block;
+        height: auto;
+    }
+
+    .hero-headline-word--designed,
+    .hero-headline-word--function {
+        width: 100%;
+    }
+
+    .hero-headline-word--to {
+        width: 25.955625%;
     }
 }
