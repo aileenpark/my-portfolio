@@ -61,53 +61,54 @@ export default function App() {
   return (
     <div className="home-page">
       <Header />
-      <Hero />
-
-      {/* WebGL layer — fixed so it stays behind the Hero as background */}
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 0,
-          visibility: webglFallback ? "hidden" : "visible",
-          opacity: webglFallback ? 0 : 1,
-          pointerEvents: "none",
-          width: "100vw",
-          height: "100vh",
-        }}
-      >
+      <Hero>
+        {/* WebGL layer — contained and clipped by the Hero section */}
         <div
           style={{
             position: "absolute",
-            inset: "0",
+            inset: 0,
             zIndex: 0,
-            pointerEvents: "all",
+            visibility: webglFallback ? "hidden" : "visible",
+            opacity: webglFallback ? 0 : 1,
+            pointerEvents: "none",
+            width: "100%",
+            height: "100%",
           }}
+          aria-hidden="true"
         >
-          <LiquidEther
-            colors={["#a855f7", "#ec4899", "#f9a8d4"]}
-            mouseForce={isMobileOrTablet ? 15 : 22}
-            cursorSize={isMobileOrTablet ? 80 : 150}
-            autoDemo={true}
-            autoSpeed={isMobileOrTablet ? 0.35 : 0.42}
-            autoIntensity={isMobileOrTablet ? 2.0 : 2.5}
-            autoRampDuration={1.1}
-            autoResumeDelay={isMobile ? 0 : 1000}
-            resolution={isMobileOrTablet ? 0.25 : 0.55}
-            iterationsPoisson={isMobileOrTablet ? 12 : 32}
-            iterationsViscous={isMobileOrTablet ? 12 : 32}
-            BFECC={!isMobileOrTablet}
-            style={{ width: "100%", height: "100%" }}
-            isPaused={isHeroPaused}
-          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 0,
+              pointerEvents: "all",
+            }}
+          >
+            <LiquidEther
+              colors={["#a855f7", "#ec4899", "#f9a8d4"]}
+              mouseForce={isMobileOrTablet ? 15 : 22}
+              cursorSize={isMobileOrTablet ? 80 : 150}
+              autoDemo={true}
+              autoSpeed={isMobileOrTablet ? 0.35 : 0.42}
+              autoIntensity={isMobileOrTablet ? 2.0 : 2.5}
+              autoRampDuration={1.1}
+              autoResumeDelay={isMobile ? 0 : 1000}
+              resolution={isMobileOrTablet ? 0.25 : 0.55}
+              iterationsPoisson={isMobileOrTablet ? 12 : 32}
+              iterationsViscous={isMobileOrTablet ? 12 : 32}
+              BFECC={!isMobileOrTablet}
+              style={{ width: "100%", height: "100%" }}
+              isPaused={isHeroPaused}
+            />
+          </div>
+
+          {glassCubeTier !== "mobile" && (
+            <GlassCube deviceTier={glassCubeTier} isPaused={isHeroPaused} />
+          )}
         </div>
 
-        {glassCubeTier !== "mobile" && (
-          <GlassCube deviceTier={glassCubeTier} isPaused={isHeroPaused} />
-        )}
-      </div>
-
-      {webglFallback && <WebglFallback />}
+        {webglFallback && <WebglFallback />}
+      </Hero>
     </div>
   );
 }
