@@ -10,6 +10,10 @@ import "./App.css";
 export default function App() {
   const [webglFallback, setWebglFallback] = useState(false);
   const [isHeroPaused] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
   const [deviceTier, setDeviceTier] = useState(() => {
     if (typeof window === "undefined") return "desktop";
     return getDeviceTier();
@@ -20,6 +24,17 @@ export default function App() {
   });
   const isMobileOrTablet = deviceTier !== "desktop";
   const isMobile = deviceTier === "mobile";
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleReducedMotionChange = (event) => {
+      setPrefersReducedMotion(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleReducedMotionChange);
+    return () =>
+      mediaQuery.removeEventListener("change", handleReducedMotionChange);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
@@ -88,22 +103,25 @@ export default function App() {
               colors={["#a855f7", "#ec4899", "#f9a8d4"]}
               mouseForce={isMobileOrTablet ? 15 : 22}
               cursorSize={isMobileOrTablet ? 80 : 150}
-              autoDemo={true}
+              autoDemo={!prefersReducedMotion}
               autoSpeed={isMobileOrTablet ? 0.35 : 0.42}
               autoIntensity={isMobileOrTablet ? 2.0 : 2.5}
-              autoRampDuration={1.1}
+              autoRampDuration={isMobile ? 0.35 : 1.1}
               autoResumeDelay={isMobile ? 0 : 1000}
               resolution={isMobileOrTablet ? 0.25 : 0.55}
               iterationsPoisson={isMobileOrTablet ? 12 : 32}
               iterationsViscous={isMobileOrTablet ? 12 : 32}
               BFECC={!isMobileOrTablet}
               style={{ width: "100%", height: "100%" }}
-              isPaused={isHeroPaused}
+              isPaused={isHeroPaused || prefersReducedMotion}
             />
           </div>
 
           {glassCubeTier !== "mobile" && (
-            <GlassCube deviceTier={glassCubeTier} isPaused={isHeroPaused} />
+            <GlassCube
+              deviceTier={glassCubeTier}
+              isPaused={isHeroPaused || prefersReducedMotion}
+            />
           )}
         </div>
 
