@@ -57,6 +57,10 @@
     text-align: left;
 }
 
+.hero-intro-text--mobile {
+    display: none;
+}
+
 .hero-headline {
     position: absolute;
     top: 724.81px;
@@ -126,7 +130,28 @@
         right: 24px;
         left: auto;
         top: 166px;
+        max-width: calc(100vw - 48px);
+        display: flex;
+        align-items: flex-end;
         font-size: 12px;
+    }
+
+    .hero-intro-text--default {
+        display: none;
+    }
+
+    .hero-intro-text--mobile {
+        width: max-content;
+        max-width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-content: flex-end;
+        column-gap: 0.25em;
+        white-space: nowrap;
+    }
+
+    .hero-intro-text__systems {
+        flex-basis: 100%;
     }
 
     .hero-headline--desktop {

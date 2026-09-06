@@ -15,9 +15,16 @@ export default function Hero({ children }) {
         </p>
 
         <div className="hero-intro" data-node-id="14:27">
-          <p className="hero-intro-text">
+          <p className="hero-intro-text hero-intro-text--default">
             I'm Nayun Park — A curious and thoughtful product designer connects<br />
             systems, stories, creative energy and coherence.
+          </p>
+          <p className="hero-intro-text hero-intro-text--mobile">
+            <span>I'm Nayun Park — A curious and thoughtful</span>
+            <span>product designer connects</span>
+            <span className="hero-intro-text__systems">
+              systems, stories, creative energy and coherence.
+            </span>
           </p>
         </div>
 
