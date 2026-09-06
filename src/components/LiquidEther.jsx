@@ -308,7 +308,7 @@ export default function LiquidEther({
         this.manager = manager;
         this.enabled = opts.enabled;
         this.speed = opts.speed;
-        this.resumeDelay = opts.resumeDelay || 3000;
+        this.resumeDelay = opts.resumeDelay ?? 3000;
         this.rampDurationMs = (opts.rampDuration || 0) * 1000;
         this.active = false;
         this.current = new THREE.Vector2(0, 0);
@@ -864,7 +864,7 @@ export default function LiquidEther({
     if (!Common.renderer) return;
 
     webglRef.current = webgl;
-    webgl.start();
+    if (!isPausedRef.current && !document.hidden) webgl.start();
 
     if (Common.renderer) {
       Common.renderer.domElement.style.cssText =
