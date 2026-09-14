@@ -189,12 +189,12 @@ const IMPACT_ITEMS = [
     body: "Repeated updates became faster because teams could handle common tasks directly.",
   },
   {
-    lines: ["10 internal users", "supported"],
+    lines: ["5 different teams", "supported"],
     body: "The system supported company-wide use across content, operations, finance, CS, and QA teams.",
   },
   {
-    lines: ["5 work areas", "centralized"],
-    body: "Content, operations, finance, CS, and QA tasks were organized into one admin structure.",
+    lines: ["0 developer requests", "for routine ops"],
+    body: "Work that once started as a message to a developer now started in the admin panel.",
   },
 ];
 
