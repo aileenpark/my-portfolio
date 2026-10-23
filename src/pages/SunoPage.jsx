@@ -123,6 +123,9 @@ const SIDE_NAV_ITEMS = [
 
 const SCROLL_OFFSET = 120;
 
+// Ideate — Crazy 8's subsection is hidden for now; flip to true to restore.
+const SHOW_CRAZY_8S = false;
+
 function useScrollSpy(ids) {
   const [activeId, setActiveId] = useState(ids[0]);
   useEffect(() => {
@@ -1228,6 +1231,7 @@ export default function SunoPage() {
               {/* subsection list */}
               <div style={{ display: "flex", flexDirection: "column", gap: "48px", width: "100%" }}>
                 {/* Crazy 8's */}
+                {SHOW_CRAZY_8S && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
                   <p style={{ fontFamily: F.base, fontWeight: 500, fontSize: "16px", lineHeight: 1.5, color: C.textMuted, margin: 0 }}>
                     Crazy 8&rsquo;s
@@ -1305,11 +1309,12 @@ export default function SunoPage() {
                     </figure>
                   </div>
                 </div>
+                )}
 
-                {/* Final Sketches */}
+                {/* Sketches */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
                   <p style={{ fontFamily: F.base, fontWeight: 500, fontSize: "16px", lineHeight: 1.5, color: C.textMuted, margin: 0 }}>
-                    Final Sketches
+                    Sketches
                   </p>
                   <figure style={{ margin: 0, display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end", width: "100%" }}>
                     <div
@@ -1324,7 +1329,7 @@ export default function SunoPage() {
                     >
                       <img
                         src="/suno/ideate/final-sketches.png"
-                        alt="Final sketches"
+                        alt="Sketches"
                         style={{ display: "block", width: "100%", height: "auto" }}
                       />
                     </div>
@@ -1339,7 +1344,7 @@ export default function SunoPage() {
                         textAlign: "right",
                       }}
                     >
-                      Final sketches
+                      Sketches
                     </figcaption>
                   </figure>
                 </div>
